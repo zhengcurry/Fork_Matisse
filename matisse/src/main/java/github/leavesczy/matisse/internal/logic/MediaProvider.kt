@@ -7,6 +7,7 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Size
 import github.leavesczy.matisse.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -26,7 +27,8 @@ internal object MediaProvider {
         val uri: Uri,
         val path: String,
         val name: String,
-        val mimeType: String
+        val mimeType: String,
+        val thumbnailUri: Uri
     )
 
     suspend fun createImage(
@@ -69,7 +71,7 @@ internal object MediaProvider {
     ): List<MediaInfo>? {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
-            val pathColumn = MediaStore.MediaColumns.DATA
+//            val pathColumn = MediaStore.MediaColumns.DATA
             val sizeColumn = MediaStore.MediaColumns.SIZE
             val displayNameColumn = MediaStore.MediaColumns.DISPLAY_NAME
             val mineTypeColumn = MediaStore.MediaColumns.MIME_TYPE
@@ -78,7 +80,7 @@ internal object MediaProvider {
             val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
             val projection = arrayOf(
                 idColumn,
-                pathColumn,
+//                pathColumn,
                 sizeColumn,
                 displayNameColumn,
                 mineTypeColumn,
@@ -97,32 +99,43 @@ internal object MediaProvider {
                     sortOrder,
                 ) ?: return@withContext null
                 mediaCursor.use { cursor ->
-                    while (cursor.moveToNext()) {
+                    // ✅ 跳到 offset 位置
+//                    if (offset > 0) cursor.move(offset)
+
+//                    var count = 0
+
+                    while (cursor.moveToNext()) {//&& count < limit
+//                        count++
                         val defaultId = Long.MAX_VALUE
                         val id = cursor.getLong(idColumn, defaultId)
-                        val path = cursor.getString(pathColumn, "")
+//                        val path = cursor.getString(pathColumn, "")
                         val size = cursor.getLong(sizeColumn, 0)
-                        if (id == defaultId || path.isBlank() || size <= 0) {
+                        if (id == defaultId || size <= 0) {
                             continue
                         }
-                        val file = File(path)
-                        if (!file.isFile || !file.exists()) {
-                            continue
-                        }
+//                        val file = File(path)
+//                        if (!file.isFile || !file.exists()) {
+//                            continue
+//                        }
                         val name = cursor.getString(displayNameColumn, "")
                         val mimeType = cursor.getString(mineTypeColumn, "")
                         val bucketId = cursor.getString(bucketIdColumn, "")
                         val bucketName = cursor.getString(bucketDisplayNameColumn, "")
                         val uri = ContentUris.withAppendedId(contentUri, id)
+                        val thumbnailUri = ContentUris.withAppendedId(
+                            MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
+                            id
+                        )
                         mediaResourceList.add(
                             element = MediaInfo(
                                 mediaId = id,
                                 bucketId = bucketId,
                                 bucketName = bucketName,
-                                path = path,
+                                path = "path",
                                 uri = uri,
                                 name = name,
-                                mimeType = mimeType
+                                mimeType = mimeType,
+                                thumbnailUri = thumbnailUri
                             )
                         )
                     }

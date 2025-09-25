@@ -24,7 +24,8 @@ internal data class MatissePageViewState(
     val lazyGridState: LazyGridState,
     val onClickBucket: suspend (String) -> Unit,
     val onClickMedia: (MatisseMediaExtend) -> Unit,
-    val onMediaCheckChanged: (MatisseMediaExtend) -> Unit
+    val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
+    val onClickMediaType: (Int) -> Unit,
 )
 
 @Stable

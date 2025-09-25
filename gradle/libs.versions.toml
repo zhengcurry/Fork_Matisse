@@ -14,6 +14,9 @@ junit = "4.13.2"
 
 coil = "3.3.0"
 glide = "1.0.0-beta07"
+ui-tooling-preview = "1.9.1"
+ui-tooling = "1.9.1"
+zoomable = "2.8.1"
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "android-plugin" }
@@ -52,3 +55,6 @@ coil-gif = { module = "io.coil-kt.coil3:coil-gif", version.ref = "coil" }
 coil-video = { module = "io.coil-kt.coil3:coil-video", version.ref = "coil" }
 
 glide-compose = { module = "com.github.bumptech.glide:compose", version.ref = "glide" }
+androidx-ui-tooling-preview = { group = "androidx.compose.ui", name = "ui-tooling-preview", version.ref = "ui-tooling-preview" }
+androidx-ui-tooling = { group = "androidx.compose.ui", name = "ui-tooling", version.ref = "ui-tooling" }
+zoomable = { module = "net.engawapg.lib:zoomable", version.ref = "zoomable" }

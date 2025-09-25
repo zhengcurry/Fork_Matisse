@@ -15,7 +15,7 @@
         <activity
             android:name=".internal.MatisseActivity"
             android:exported="false"
-            android:screenOrientation="portrait"
+            android:screenOrientation="landscape"
             android:theme="@style/Matisse.Theme"
             tools:ignore="DiscouragedApi" />
         <activity
@@ -29,7 +29,7 @@
             android:configChanges="orientation"
             android:exported="false"
             android:launchMode="singleTop"
-            android:screenOrientation="portrait"
+            android:screenOrientation="landscape"
             android:theme="@style/Matisse.Theme.VideoView"
             tools:ignore="DiscouragedApi" />
     </application>

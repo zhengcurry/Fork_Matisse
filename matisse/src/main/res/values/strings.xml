@@ -12,4 +12,9 @@
     <string name="matisse_preview">预览</string>
     <string name="matisse_sure">确定(%d/%d)</string>
     <string name="matisse_back">返回</string>
+    <string name="matisse_image">图片</string>
+    <string name="matisse_video">视频</string>
+    <string name="matisse_choice">选择</string>
+    <string name="matisse_delete">删除</string>
+    <string name="matisse_cancel">取消</string>
 </resources>

@@ -36,7 +36,7 @@ class MainViewModel : ViewModel() {
             singleMediaType = false,
             imageEngine = MediaImageEngine.Coil,
             filterStrategy = MediaFilterStrategy.Nothing,
-            captureStrategy = MediaCaptureStrategy.Smart,
+            captureStrategy = MediaCaptureStrategy.Close,
             capturePreferencesCustom = false,
             mediaList = emptyList(),
             onGridColumnsChanged = ::onGridColumnsChanged,

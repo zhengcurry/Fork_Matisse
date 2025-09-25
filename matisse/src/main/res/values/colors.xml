@@ -32,4 +32,9 @@
     <color name="matisse_circular_loading_color">#FF03A9F4</color>
     <color name="matisse_video_icon_color">#FFFFFFFF</color>
     <color name="matisse_video_view_page_background_color">#FF22202A</color>
+
+    <color name="matisse_type_switch_bg_color">#FF0079FF</color>
+    <color name="matisse_type_bg_color">#FF5A5E63</color>
+    <color name="matisse_type_common_btn_color">#FF5A5E63</color>
+    <color name="matisse_type_delete_btn_color">#FFFF4545</color>
 </resources>

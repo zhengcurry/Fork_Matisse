@@ -22,8 +22,11 @@ dependencies {
     implementation(libs.androidx.compose.foundation)
     implementation(libs.androidx.compose.material.icons.extended)
     implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation (libs.zoomable)
     compileOnly(libs.coil.compose)
     compileOnly(libs.glide.compose)
+    debugImplementation(libs.androidx.ui.tooling)
 }
 
 val matisseVersion = "2.2.2"

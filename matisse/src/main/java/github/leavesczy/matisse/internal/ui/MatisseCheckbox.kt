@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.foundation.text.TextAutoSize
 import androidx.compose.runtime.Composable
@@ -44,17 +45,17 @@ internal fun MatisseCheckbox(
         Spacer(
             modifier = Modifier
                 .fillMaxSize()
-                .clip(shape = CircleShape)
+                .clip(shape = RoundedCornerShape(10))
                 .then(
                     other = if (selectState.isSelected) {
                         Modifier
                             .background(color = colorResource(id = R.color.matisse_check_box_circle_fill_color))
                     } else {
                         Modifier
-                            .background(color = Color(0x1A000000))
+                            .background(color = Color(0xFFFFFFFF))
                             .border(
                                 width = 1.dp,
-                                shape = CircleShape,
+                                shape = RoundedCornerShape(10),
                                 color = colorResource(
                                     id = if (selectState.isEnabled) {
                                         R.color.matisse_check_box_circle_color

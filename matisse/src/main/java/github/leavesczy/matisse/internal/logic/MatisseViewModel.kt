@@ -13,9 +13,13 @@ import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
 import github.leavesczy.matisse.Matisse
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -38,7 +42,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val fastSelect = matisse.fastSelect
 
-    val mediaType = matisse.mediaType
+    var mediaType = matisse.mediaType
 
     val singleMediaType = matisse.singleMediaType
 
@@ -69,7 +73,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             onClickBucket = ::onClickBucket,
             lazyGridState = LazyGridState(),
             onClickMedia = ::onClickMedia,
-            onMediaCheckChanged = ::onMediaCheckChanged
+            onMediaCheckChanged = ::onMediaCheckChanged,
+            onClickMediaType = ::onClickMediaType
         )
     )
         private set
@@ -207,7 +212,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                         uri = it.uri,
                         path = it.path,
                         name = it.name,
-                        mimeType = it.mimeType
+                        mimeType = it.mimeType,
+                        thumbnailUri = it.thumbnailUri
                     )
                     if (mediaFilter?.ignoreMedia(mediaResource = media) == true) {
                         null
@@ -237,6 +243,15 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 )
             )
         )
+    }
+
+    private fun onClickMediaType(index: Int) {
+        mediaType = if (index==1) {
+            MediaType.VideoOnly
+        } else {
+            MediaType.ImageOnly
+        }
+        requestReadMediaPermissionResult(true)
     }
 
     private suspend fun onClickBucket(bucketId: String) {

@@ -2,22 +2,27 @@ package github.leavesczy.matisse
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import coil3.compose.AsyncImagePainter
 import coil3.compose.SubcomposeAsyncImage
 import coil3.compose.SubcomposeAsyncImageContent
+import coil3.request.CachePolicy
+import coil3.request.ImageRequest
+import coil3.request.crossfade
 import kotlinx.parcelize.Parcelize
+import net.engawapg.lib.zoomable.rememberZoomState
+import net.engawapg.lib.zoomable.zoomable
 
 /**
  * @Author: CZY
@@ -32,27 +37,38 @@ class CoilImageEngine : ImageEngine {
         CoilComposeImage(
             modifier = Modifier
                 .fillMaxSize(),
-            model = mediaResource.uri,
+            model = ImageRequest.Builder(LocalContext.current)
+                .data(mediaResource.uri)
+                .size(50)
+                .diskCachePolicy(CachePolicy.ENABLED)
+                .memoryCachePolicy(CachePolicy.ENABLED)
+                .crossfade(true)
+                .build(),
             contentScale = ContentScale.Crop
         )
     }
 
     @Composable
-    override fun Image(mediaResource: MediaResource) {
+    override fun Image(modifier: Modifier, mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
             CoilComposeImage(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = modifier
+                    .fillMaxHeight(),
                 model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth
+                contentScale = ContentScale.FillHeight
             )
         } else {
+            val zoomState = rememberZoomState()
             CoilComposeImage(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .verticalScroll(state = rememberScrollState()),
-                model = mediaResource.uri,
-                contentScale = ContentScale.FillWidth
+                modifier = modifier
+                    .fillMaxHeight()
+                    .clipToBounds()
+                    .zoomable(zoomState),
+                model = ImageRequest.Builder(LocalContext.current)
+                    .data(mediaResource.uri)
+                    .crossfade(true)
+                    .build(),
+                contentScale = ContentScale.FillHeight
             )
         }
     }

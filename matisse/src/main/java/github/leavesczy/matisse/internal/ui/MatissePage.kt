@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -25,8 +26,15 @@ import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.Stable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -41,6 +49,8 @@ import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
 import github.leavesczy.matisse.internal.logic.MatisseMediaExtend
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
+import github.leavesczy.matisse.internal.logic.MatisseViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
  * @Author: leavesCZY
@@ -55,27 +65,21 @@ internal fun MatissePage(
     onClickSure: () -> Unit,
     selectMediaInFastSelectMode: (MediaResource) -> Unit
 ) {
+    var choice by remember { mutableStateOf(false) }
+
     Scaffold(
         modifier = Modifier
             .fillMaxSize(),
-        containerColor = colorResource(id = R.color.matisse_main_page_background_color),
+        containerColor = Color.Black,
         topBar = {
-            MatisseTopBar(
+            MediaTypeTopBar(
                 modifier = Modifier,
-                title = pageViewState.selectedBucket.bucketName,
-                mediaBucketsInfo = pageViewState.mediaBucketsInfo,
-                onClickBucket = pageViewState.onClickBucket,
-                imageEngine = pageViewState.imageEngine
+                onClickMediaType = pageViewState.onClickMediaType,
+                onClickChoice = { it -> choice = it },
+                onClickDelete = {}
             )
         },
         bottomBar = {
-            if (!pageViewState.fastSelect) {
-                MatisseBottomBar(
-                    modifier = Modifier,
-                    viewState = bottomBarViewState,
-                    onClickSure = onClickSure
-                )
-            }
         }
     ) { innerPadding ->
         LazyVerticalGrid(
@@ -131,7 +135,8 @@ internal fun MatissePage(
                         mediaResource = it,
                         imageEngine = pageViewState.imageEngine,
                         onClickMedia = pageViewState.onClickMedia,
-                        onClickCheckBox = pageViewState.onMediaCheckChanged
+                        onClickCheckBox = pageViewState.onMediaCheckChanged,
+                        choice = choice
                     )
                 }
             }
@@ -168,7 +173,8 @@ private fun MediaItem(
     mediaResource: MatisseMediaExtend,
     imageEngine: ImageEngine,
     onClickMedia: (MatisseMediaExtend) -> Unit,
-    onClickCheckBox: (MatisseMediaExtend) -> Unit
+    onClickCheckBox: (MatisseMediaExtend) -> Unit,
+    choice: Boolean
 ) {
     Box(
         modifier = modifier
@@ -197,23 +203,25 @@ private fun MediaItem(
                 .fillMaxSize()
                 .background(color = scrimColor)
         )
-        Box(
-            modifier = Modifier
-                .align(alignment = Alignment.TopEnd)
-                .fillMaxSize(fraction = 0.33f)
-                .clickableNoRipple {
-                    onClickCheckBox(mediaResource)
-                },
-            contentAlignment = Alignment.Center
-        ) {
-            MatisseCheckbox(
+        if (choice) {
+            Box(
                 modifier = Modifier
-                    .fillMaxSize(fraction = 0.68f),
-                selectState = mediaResource.selectState.value,
-                onClick = {
-                    onClickCheckBox(mediaResource)
-                }
-            )
+                    .align(alignment = Alignment.BottomStart)
+                    .fillMaxSize(fraction = 0.33f)
+                    .clickableNoRipple {
+                        onClickCheckBox(mediaResource)
+                    },
+                contentAlignment = Alignment.Center
+            ) {
+                MatisseCheckbox(
+                    modifier = Modifier
+                        .fillMaxSize(fraction = 0.68f),
+                    selectState = mediaResource.selectState.value,
+                    onClick = {
+                        onClickCheckBox(mediaResource)
+                    }
+                )
+            }
         }
     }
 }

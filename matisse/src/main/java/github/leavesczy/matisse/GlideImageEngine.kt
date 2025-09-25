@@ -36,7 +36,7 @@ class GlideImageEngine : ImageEngine {
     }
 
     @Composable
-    override fun Image(mediaResource: MediaResource) {
+    override fun Image(modifier: Modifier, mediaResource: MediaResource) {
         if (mediaResource.isVideo) {
             GlideComposeImage(
                 modifier = Modifier

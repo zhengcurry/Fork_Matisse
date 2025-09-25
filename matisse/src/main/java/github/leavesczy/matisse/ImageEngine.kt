@@ -3,6 +3,7 @@ package github.leavesczy.matisse
 import android.os.Parcelable
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
+import androidx.compose.ui.Modifier
 
 /**
  * @Author: leavesCZY
@@ -22,6 +23,6 @@ interface ImageEngine : Parcelable {
      * 加载大图时调用
      */
     @Composable
-    fun Image(mediaResource: MediaResource)
+    fun Image(modifier: Modifier, mediaResource: MediaResource)
 
 }

@@ -7,6 +7,7 @@ import coil3.ImageLoader
 import coil3.SingletonImageLoader
 import coil3.gif.AnimatedImageDecoder
 import coil3.gif.GifDecoder
+import coil3.memory.MemoryCache
 import coil3.request.allowHardware
 import coil3.request.crossfade
 import coil3.video.VideoFrameDecoder
@@ -26,10 +27,15 @@ class MatisseApplication : Application() {
 
     private fun initCoil() {
         SingletonImageLoader.setSafe(factory = { context ->
-            ImageLoader
-                .Builder(context = context)
-                .crossfade(enable = false)
-                .allowHardware(enable = true)
+            ImageLoader.Builder(context)
+                .crossfade(false)
+                .allowHardware(true)
+                // 1️⃣ 内存缓存（相册场景建议稍微大一点）
+//                .memoryCache {
+//                    MemoryCache.Builder()
+//                        .maxSizePercent(context,0.25) // 占用应用可用内存的 25%
+//                        .build()
+//                }
                 .components {
                     if (Build.VERSION.SDK_INT >= 28) {
                         add(AnimatedImageDecoder.Factory())

@@ -1,5 +1,7 @@
 package github.leavesczy.matisse.internal.ui
 
+import android.content.Context
+import android.widget.VideoView
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
@@ -10,13 +12,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.aspectRatio
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -30,14 +37,18 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
+import androidx.compose.ui.viewinterop.AndroidView
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
@@ -96,6 +107,9 @@ internal fun MatissePreviewPage(
                     .padding(paddingValues = paddingValues)
                     .fillMaxSize()
             ) {
+                MediaPreviewTopBar(
+                    modifier = Modifier,
+                    {})
                 HorizontalPager(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -116,13 +130,6 @@ internal fun MatissePreviewPage(
                         requestOpenVideo = requestOpenVideo
                     )
                 }
-                BottomController(
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    pageViewState = pageViewState,
-                    pagerState = pagerState,
-                    onClickSure = onClickSure
-                )
             }
         }
     }
@@ -162,17 +169,69 @@ private fun PreviewPage(
                 },
             contentAlignment = Alignment.Center
         ) {
-            imageEngine.Image(mediaResource = mediaResource)
-            if (mediaResource.isVideo) {
-                VideoIcon(
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth(0.3f)
+                        .padding(start = 20.dp)
+                ) {
+                    Text(
+                        modifier = Modifier,
+                        text = "NAME",
+                        fontSize = 16.sp,
+                        color = Color.White
+                    )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        modifier = Modifier,
+                        text = "大小",
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        modifier = Modifier,
+                        text = "时间：",
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        modifier = Modifier,
+                        text = "位置：",
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                }
+
+                Box(
                     modifier = Modifier
-                        .clip(shape = CircleShape)
-                        .clickable {
-                            requestOpenVideo(mediaResource)
-                        }
-                        .padding(all = 10.dp)
-                        .size(size = 50.dp)
-                )
+                        .fillMaxSize()
+                ) {
+                    if (mediaResource.isVideo) {
+                        AndroidView(
+                            factory = { context: Context ->
+                                VideoView(context, null).apply {
+                                    setVideoURI(mediaResource.uri)
+                                    start()
+                                }
+                            },
+                            modifier = Modifier
+                                .clipToBounds()
+                                .fillMaxSize()
+                                .align(Alignment.Center),
+                            update = { rtspPlayer: VideoView ->
+                            }
+                        )
+                    } else {
+                        imageEngine.Image(
+                            Modifier
+                                .align(Alignment.Center), mediaResource = mediaResource
+                        )
+                    }
+                }
             }
         }
     }

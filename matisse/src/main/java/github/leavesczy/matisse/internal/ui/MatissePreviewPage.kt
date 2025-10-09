@@ -33,6 +33,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -77,13 +78,17 @@ internal fun MatissePreviewPage(
             pageViewState.reloadMediaResources()
         }
     }
+    var deleteIndex by remember { mutableIntStateOf(pageViewState.initialPage) }
 
     if (showDialog) {
         CustomButtonDialog(
             R.string.matisse_dialog_title,
             onDismissRequest = { showDialog = false },
             onSureClick = {
-                pageViewState.onClickDelete(launcher)
+                pageViewState.deleteMediaResources(
+                    pageViewState.previewResources[deleteIndex].media.uri,
+                    launcher
+                )
                 showDialog = false
             },
             onCancelClick = { showDialog = false })
@@ -129,8 +134,10 @@ internal fun MatissePreviewPage(
                     .fillMaxSize()
             ) {
                 MediaPreviewTopBar(
-                    modifier = Modifier
-                ) { showDialog = true }
+                    modifier = Modifier,
+                    { showDialog = true },
+                    backEvent = pageViewState.onDismissRequest
+                )
                 HorizontalPager(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -141,6 +148,7 @@ internal fun MatissePreviewPage(
                         pageViewState.previewResources[index].mediaId
                     }
                 ) { pageIndex ->
+                    deleteIndex = pageIndex
                     PreviewPage(
                         modifier = Modifier
                             .fillMaxSize(),

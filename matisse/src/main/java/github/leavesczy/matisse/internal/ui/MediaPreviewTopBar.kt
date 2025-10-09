@@ -1,8 +1,10 @@
 package github.leavesczy.matisse.internal.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -36,39 +38,48 @@ import github.leavesczy.matisse.R
 internal fun MediaPreviewTopBar(
     modifier: Modifier,
     onClickDelete: () -> Unit,
+    backEvent: () -> Unit
 ) {
-    Row(
-        modifier = modifier
+    Box(
+        modifier = Modifier
             .fillMaxWidth()
-            .height(height = 56.dp),
-        horizontalArrangement  = Arrangement.SpaceBetween,
-        verticalAlignment = Alignment.CenterVertically
+            .height(56.dp)
     ) {
-        Icon(
+        // 左右两边组件
+        Row(
             modifier = Modifier
-                .clickableNoRipple {
-                }
-                .padding(start = 18.dp, end = 12.dp)
-                .fillMaxHeight()
-                .size(size = 24.dp),
-            painter = painterResource(id = R.drawable.icon_back),
-            tint = colorResource(id = R.color.matisse_top_bar_icon_color),
-            contentDescription = null
-        )
-
-        Button(
-            onClick = {
-                onClickDelete()
-            },
-            colors = ButtonDefaults.buttonColors(
-                containerColor = colorResource(id = R.color.matisse_type_delete_btn_color)
-            ),
-            shape = RoundedCornerShape(8.dp)
+                .fillMaxSize()
+                .padding(horizontal = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(
-                stringResource(R.string.matisse_delete),
-                color = Color.White
+            Icon(
+                modifier = Modifier
+                    .clickableNoRipple {
+                        backEvent()
+                    }
+                    .padding(end = 12.dp)
+                    .fillMaxHeight()
+                    .size(size = 32.dp),
+                painter = painterResource(id = R.drawable.icon_back),
+                tint = colorResource(id = R.color.matisse_top_bar_icon_color),
+                contentDescription = null
             )
+
+            Button(
+                onClick = {
+                    onClickDelete()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = colorResource(id = R.color.matisse_type_delete_btn_color)
+                ),
+                shape = RoundedCornerShape(8.dp)
+            ) {
+                Text(
+                    stringResource(R.string.matisse_delete),
+                    color = Color.White
+                )
+            }
         }
     }
 }
@@ -78,6 +89,7 @@ internal fun MediaPreviewTopBar(
 fun MediaPreviewTopBarPreview() {
     MediaPreviewTopBar(
         modifier = Modifier,
-        onClickDelete = { }
+        onClickDelete = { },
+        {}
     )
 }

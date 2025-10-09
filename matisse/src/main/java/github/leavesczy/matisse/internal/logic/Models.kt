@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.internal.logic
 
+import android.net.Uri
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -9,7 +10,6 @@ import androidx.compose.runtime.State
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
-import github.leavesczy.matisse.MediaType
 
 /**
  * @Author: leavesCZY
@@ -95,6 +95,6 @@ internal data class MatissePreviewPageViewState(
     val previewResources: List<MatisseMediaExtend>,
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
     val onDismissRequest: () -> Unit,
-    val onClickDelete: (launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
+    val deleteMediaResources: (uri: Uri, launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
     val reloadMediaResources: () -> Unit,
 )

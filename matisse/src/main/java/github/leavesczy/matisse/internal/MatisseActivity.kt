@@ -8,10 +8,7 @@ import android.os.Parcelable
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.core.content.IntentCompat
@@ -30,7 +27,6 @@ import github.leavesczy.matisse.internal.ui.MatissePage
 import github.leavesczy.matisse.internal.ui.MatissePreviewPage
 import github.leavesczy.matisse.internal.ui.MatisseTheme
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.distinctUntilChanged
 
 /**
  * @Author: leavesCZY

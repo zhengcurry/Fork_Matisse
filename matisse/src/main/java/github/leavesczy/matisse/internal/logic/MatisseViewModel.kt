@@ -2,6 +2,7 @@ package github.leavesczy.matisse.internal.logic
 
 import android.app.Application
 import android.content.Context
+import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
@@ -22,6 +23,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.min
 
 /**
  * @Author: leavesCZY
@@ -96,7 +98,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             previewResources = emptyList(),
             onMediaCheckChanged = {},
             onDismissRequest = {},
-            onClickDelete = ::deleteMediaResources,
+            deleteMediaResources = ::deleteMediaResources,
             reloadMediaResources = ::reloadMediaResources
         )
     )
@@ -120,7 +122,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
     fun requestReadMediaPermissionResult(granted: Boolean) {
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
             showLoadingDialog()
-            dismissPreviewPage()
+            val lastVisible = dismissPreviewPage()
             allMediaResources.clear()
             if (granted) {
                 val allResources = loadMediaResources()
@@ -167,6 +169,15 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             }
             bottomBarViewState = buildBottomBarViewState()
             dismissLoadingDialog()
+
+            if (lastVisible) {
+                val totalResources = pageViewState.selectedBucket.resources
+                previewResource(
+                    initialPage = min(previewPageViewState.initialPage + 1, totalResources.size - 1),
+                    totalResources = totalResources,
+                    selectedResources = filterSelectedMediaResource()
+                )
+            }
         }
     }
 
@@ -199,6 +210,18 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                     }
                 }
             }
+        }
+    }
+
+    /**
+     * preview删除对应的媒体文件
+     */
+    private fun deleteMediaResources(
+        uri: Uri,
+        launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
+    ) {
+        viewModelScope.launch(context = Dispatchers.Main.immediate) {
+            MediaProvider.deleteMedia(launcher, context, listOf(uri))
         }
     }
 
@@ -438,7 +461,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         )
     }
 
-    private fun dismissPreviewPage() {
+    private fun dismissPreviewPage(): Boolean {
         val viewState = previewPageViewState
         if (viewState.visible) {
             previewPageViewState = viewState.copy(
@@ -447,6 +470,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 onDismissRequest = {}
             )
         }
+        return viewState.visible
     }
 
     fun filterSelectedMedia(): List<MediaResource> {

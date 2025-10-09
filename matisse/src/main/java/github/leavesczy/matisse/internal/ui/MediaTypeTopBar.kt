@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.internal.ui
 
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -67,11 +68,13 @@ internal fun MediaTypeTopBar(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
+            val localActivity = LocalActivity.current
             Icon(
                 modifier = Modifier
                     .clickableNoRipple {
+                        localActivity?.finish()
                     }
-                    .padding(start = 18.dp, end = 12.dp)
+                    .padding(end = 12.dp)
                     .fillMaxHeight()
                     .size(size = 32.dp),
                 painter = painterResource(id = R.drawable.icon_back),

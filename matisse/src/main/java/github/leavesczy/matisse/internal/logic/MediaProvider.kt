@@ -3,15 +3,18 @@ package github.leavesczy.matisse.internal.logic
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
+import android.content.IntentSender
 import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Size
+import android.util.Log
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
 import github.leavesczy.matisse.MediaType
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.File
 
 /**
  * @Author: leavesCZY
@@ -28,7 +31,8 @@ internal object MediaProvider {
         val path: String,
         val name: String,
         val mimeType: String,
-        val thumbnailUri: Uri
+        val size: Long,
+        val dateModified: Long
     )
 
     suspend fun createImage(
@@ -64,6 +68,32 @@ internal object MediaProvider {
         }
     }
 
+    suspend fun deleteMoreMedia(context: Context, uris: List<Uri>) {
+        for (uri in uris) {
+            deleteMedia(context, uri)
+        }
+    }
+
+    suspend fun deleteMedia(
+        launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
+        context: Context,
+        uris: List<Uri>
+    ) {
+        Log.e("curry", "deleteMedia: $uris")
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+            try {
+                val deleteRequest = MediaStore.createDeleteRequest(context.contentResolver, uris)
+                launcher.launch(
+                    IntentSenderRequest.Builder(deleteRequest).build()
+                )
+            } catch (e: IntentSender.SendIntentException) {
+                e.printStackTrace()
+            }
+        } else {
+            deleteMoreMedia(context, uris)
+        }
+    }
+
     private suspend fun loadResources(
         context: Context,
         selection: String?,
@@ -71,7 +101,7 @@ internal object MediaProvider {
     ): List<MediaInfo>? {
         return withContext(context = Dispatchers.Default) {
             val idColumn = MediaStore.MediaColumns._ID
-//            val pathColumn = MediaStore.MediaColumns.DATA
+            val pathColumn = MediaStore.MediaColumns.DATA
             val sizeColumn = MediaStore.MediaColumns.SIZE
             val displayNameColumn = MediaStore.MediaColumns.DISPLAY_NAME
             val mineTypeColumn = MediaStore.MediaColumns.MIME_TYPE
@@ -80,12 +110,13 @@ internal object MediaProvider {
             val dateModifiedColumn = MediaStore.MediaColumns.DATE_MODIFIED
             val projection = arrayOf(
                 idColumn,
-//                pathColumn,
+                pathColumn,
                 sizeColumn,
                 displayNameColumn,
                 mineTypeColumn,
                 bucketIdColumn,
-                bucketDisplayNameColumn
+                bucketDisplayNameColumn,
+                dateModifiedColumn
             )
             val contentUri = MediaStore.Files.getContentUri("external")
             val sortOrder = "$dateModifiedColumn DESC"
@@ -99,17 +130,12 @@ internal object MediaProvider {
                     sortOrder,
                 ) ?: return@withContext null
                 mediaCursor.use { cursor ->
-                    // ✅ 跳到 offset 位置
-//                    if (offset > 0) cursor.move(offset)
-
-//                    var count = 0
-
                     while (cursor.moveToNext()) {//&& count < limit
-//                        count++
                         val defaultId = Long.MAX_VALUE
                         val id = cursor.getLong(idColumn, defaultId)
-//                        val path = cursor.getString(pathColumn, "")
+                        val path = cursor.getString(pathColumn, "")
                         val size = cursor.getLong(sizeColumn, 0)
+                        val dateModified = cursor.getLong(dateModifiedColumn, 0)
                         if (id == defaultId || size <= 0) {
                             continue
                         }
@@ -121,21 +147,18 @@ internal object MediaProvider {
                         val mimeType = cursor.getString(mineTypeColumn, "")
                         val bucketId = cursor.getString(bucketIdColumn, "")
                         val bucketName = cursor.getString(bucketDisplayNameColumn, "")
-                        val uri = ContentUris.withAppendedId(contentUri, id)
-                        val thumbnailUri = ContentUris.withAppendedId(
-                            MediaStore.Images.Thumbnails.EXTERNAL_CONTENT_URI,
-                            id
-                        )
+                        val uri = getUri(id, mimeType)
                         mediaResourceList.add(
                             element = MediaInfo(
                                 mediaId = id,
                                 bucketId = bucketId,
                                 bucketName = bucketName,
-                                path = "path",
+                                path = path,
                                 uri = uri,
                                 name = name,
                                 mimeType = mimeType,
-                                thumbnailUri = thumbnailUri
+                                size = size,
+                                dateModified = dateModified
                             )
                         )
                     }
@@ -145,6 +168,23 @@ internal object MediaProvider {
             }
             mediaResourceList
         }
+    }
+
+    // content://media/external/images/media/1000011822 ✔
+    // content://media/external/file/1000011826 ❌
+    // java.lang.IllegalArgumentException: All requested items must be Media items
+    private fun getUri(id: Long, mimeType: String): Uri {
+        val contentUri: Uri
+        if (mimeType.startsWith("image")) {
+            contentUri = MediaStore.Images.Media.EXTERNAL_CONTENT_URI
+        } else if (mimeType.startsWith("video")) {
+            contentUri = MediaStore.Video.Media.EXTERNAL_CONTENT_URI
+        } else {
+            contentUri = MediaStore.Files.getContentUri("external")
+        }
+
+        val uri = ContentUris.withAppendedId(contentUri, id)
+        return uri
     }
 
     suspend fun loadResources(

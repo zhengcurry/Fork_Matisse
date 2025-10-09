@@ -3,6 +3,9 @@ package github.leavesczy.matisse.internal.logic
 import android.app.Application
 import android.content.Context
 import android.widget.Toast
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.annotation.StringRes
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.MutableState
@@ -17,9 +20,6 @@ import github.leavesczy.matisse.MediaType
 import github.leavesczy.matisse.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -74,7 +74,9 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             lazyGridState = LazyGridState(),
             onClickMedia = ::onClickMedia,
             onMediaCheckChanged = ::onMediaCheckChanged,
-            onClickMediaType = ::onClickMediaType
+            onClickMediaType = ::onClickMediaType,
+            onClickDelete = ::deleteMediaResources,
+            reloadMediaResources = ::reloadMediaResources,
         )
     )
         private set
@@ -93,7 +95,9 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             sureButtonClickable = false,
             previewResources = emptyList(),
             onMediaCheckChanged = {},
-            onDismissRequest = {}
+            onDismissRequest = {},
+            onClickDelete = ::deleteMediaResources,
+            reloadMediaResources = ::reloadMediaResources
         )
     )
         private set
@@ -198,6 +202,18 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         }
     }
 
+    private fun deleteMediaResources(launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) {
+        viewModelScope.launch(context = Dispatchers.Main.immediate) {
+            val selected = filterSelectedMediaResource().map {
+                it.media.uri
+            }
+            val selectedResourcesIsNotEmpty = selected.isNotEmpty()
+            if (selectedResourcesIsNotEmpty) {
+                MediaProvider.deleteMedia(launcher, context, selected)
+            }
+        }
+    }
+
     private suspend fun loadMediaResources(): List<MatisseMediaExtend> {
         return withContext(context = Dispatchers.Default) {
             val resourcesInfo = MediaProvider.loadResources(
@@ -213,7 +229,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                         path = it.path,
                         name = it.name,
                         mimeType = it.mimeType,
-                        thumbnailUri = it.thumbnailUri
+                        size = it.size,
+                        dateModified = it.dateModified
                     )
                     if (mediaFilter?.ignoreMedia(mediaResource = media) == true) {
                         null
@@ -245,8 +262,12 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         )
     }
 
+    private fun reloadMediaResources() {
+        requestReadMediaPermissionResult(true)
+    }
+
     private fun onClickMediaType(index: Int) {
-        mediaType = if (index==1) {
+        this.mediaType = if (index == 1) {
             MediaType.VideoOnly
         } else {
             MediaType.ImageOnly

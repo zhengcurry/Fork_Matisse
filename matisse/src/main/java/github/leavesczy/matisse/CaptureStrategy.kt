@@ -131,7 +131,8 @@ open class FileProviderCaptureStrategy(
                 path = imageFile.absolutePath,
                 name = imageFile.name,
                 mimeType = JPG_MIME_TYPE,
-                thumbnailUri = imageUri
+                size = 0,
+                dateModified = 0
             )
         }
     }
@@ -203,7 +204,8 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
                 path = resource.path,
                 name = resource.name,
                 mimeType = resource.mimeType,
-                thumbnailUri = resource.thumbnailUri
+                size = 0,
+                dateModified = 0
             )
         }
     }

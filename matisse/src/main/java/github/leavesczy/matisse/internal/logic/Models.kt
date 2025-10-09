@@ -1,11 +1,15 @@
 package github.leavesczy.matisse.internal.logic
 
+import androidx.activity.compose.ManagedActivityResultLauncher
+import androidx.activity.result.ActivityResult
+import androidx.activity.result.IntentSenderRequest
 import androidx.compose.foundation.lazy.grid.LazyGridState
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.State
 import github.leavesczy.matisse.CaptureStrategy
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
+import github.leavesczy.matisse.MediaType
 
 /**
  * @Author: leavesCZY
@@ -26,6 +30,8 @@ internal data class MatissePageViewState(
     val onClickMedia: (MatisseMediaExtend) -> Unit,
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
     val onClickMediaType: (Int) -> Unit,
+    val onClickDelete: (launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
+    val reloadMediaResources: () -> Unit,
 )
 
 @Stable
@@ -88,5 +94,7 @@ internal data class MatissePreviewPageViewState(
     val sureButtonClickable: Boolean,
     val previewResources: List<MatisseMediaExtend>,
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
-    val onDismissRequest: () -> Unit
+    val onDismissRequest: () -> Unit,
+    val onClickDelete: (launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
+    val reloadMediaResources: () -> Unit,
 )

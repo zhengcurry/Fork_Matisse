@@ -1,8 +1,11 @@
 package github.leavesczy.matisse.internal.ui
 
+import android.app.Activity
 import android.content.Context
 import android.widget.VideoView
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
@@ -15,15 +18,12 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.PagerState
 import androidx.compose.foundation.pager.rememberPagerState
@@ -33,7 +33,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -44,7 +46,6 @@ import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
@@ -67,6 +68,26 @@ internal fun MatissePreviewPage(
     requestOpenVideo: (MediaResource) -> Unit,
     onClickSure: () -> Unit
 ) {
+    var showDialog by remember { mutableStateOf(false) }
+    val launcher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.StartIntentSenderForResult()
+    ) { result ->
+        if (result.resultCode == Activity.RESULT_OK) {
+            // 处理返回数据
+            pageViewState.reloadMediaResources()
+        }
+    }
+
+    if (showDialog) {
+        CustomButtonDialog(
+            R.string.matisse_dialog_title,
+            onDismissRequest = { showDialog = false },
+            onSureClick = {
+                pageViewState.onClickDelete(launcher)
+                showDialog = false
+            },
+            onCancelClick = { showDialog = false })
+    }
     AnimatedVisibility(
         visible = pageViewState.visible,
         enter = slideInHorizontally(
@@ -108,8 +129,8 @@ internal fun MatissePreviewPage(
                     .fillMaxSize()
             ) {
                 MediaPreviewTopBar(
-                    modifier = Modifier,
-                    {})
+                    modifier = Modifier
+                ) { showDialog = true }
                 HorizontalPager(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -180,7 +201,7 @@ private fun PreviewPage(
                 ) {
                     Text(
                         modifier = Modifier,
-                        text = "NAME",
+                        text = mediaResource.name,
                         fontSize = 16.sp,
                         color = Color.White
                     )
@@ -188,19 +209,19 @@ private fun PreviewPage(
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
                         modifier = Modifier,
-                        text = "大小",
+                        text = "大小：${mediaResource.size}",
                         fontSize = 14.sp,
                         color = Color.White
                     )
                     Text(
                         modifier = Modifier,
-                        text = "时间：",
+                        text = "时间：${mediaResource.dateModified}",
                         fontSize = 14.sp,
                         color = Color.White
                     )
                     Text(
                         modifier = Modifier,
-                        text = "位置：",
+                        text = "位置：${mediaResource.path}",
                         fontSize = 14.sp,
                         color = Color.White
                     )

@@ -27,6 +27,9 @@ dependencies {
     compileOnly(libs.coil.compose)
     compileOnly(libs.glide.compose)
     debugImplementation(libs.androidx.ui.tooling)
+    implementation("androidx.media3:media3-exoplayer:1.8.0")
+    implementation("androidx.media3:media3-ui:1.8.0")
+    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
 }
 
 val matisseVersion = "2.2.2"

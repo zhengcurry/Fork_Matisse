@@ -2,7 +2,9 @@ package github.leavesczy.matisse.internal.ui
 
 import android.app.Activity
 import android.content.Context
-import android.widget.VideoView
+import android.net.Uri
+import android.view.ViewGroup
+import android.widget.FrameLayout
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -31,6 +33,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -43,6 +46,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -51,6 +55,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.AndroidView
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import androidx.lifecycle.compose.LocalLifecycleOwner
+import androidx.media3.common.Player
+import androidx.media3.exoplayer.ExoPlayer
+import androidx.media3.ui.PlayerView
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
@@ -240,18 +250,16 @@ private fun PreviewPage(
                         .fillMaxSize()
                 ) {
                     if (mediaResource.isVideo) {
+                        val player = exoPlayer(mediaResource.uri)
                         AndroidView(
                             factory = { context: Context ->
-                                VideoView(context, null).apply {
-                                    setVideoURI(mediaResource.uri)
-                                    start()
-                                }
+                                player
                             },
                             modifier = Modifier
                                 .clipToBounds()
                                 .fillMaxSize()
                                 .align(Alignment.Center),
-                            update = { rtspPlayer: VideoView ->
+                            update = { playerView: PlayerView ->
                             }
                         )
                     } else {
@@ -264,6 +272,60 @@ private fun PreviewPage(
             }
         }
     }
+}
+
+@Composable
+private fun exoPlayer(uri: Uri): PlayerView {
+    val context = LocalContext.current
+    val exoPlayer = remember {
+        ExoPlayer.Builder(context).build().apply {
+            addListener(object : Player.Listener {
+                override fun onPlayWhenReadyChanged(playWhenReady: Boolean, playbackState: Int) {
+                    if (playbackState == Player.STATE_ENDED) {
+                        seekTo(0)
+                        setPlayWhenReady(false)
+                    }
+                }
+            })
+            setMediaItem(
+                androidx.media3.common.MediaItem.fromUri(
+                    uri
+                )
+            )
+            prepare()
+            playWhenReady = true
+        }
+    }
+    val playerView = PlayerView(context).apply {
+        player = exoPlayer
+        layoutParams =
+            FrameLayout.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.MATCH_PARENT
+            )
+        // 清除播放器的焦点，避免找不到焦点
+        setFocusable(false)
+        clearFocus()
+    }
+    // 监听宿主生命周期
+    val lifecycleOwner = LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            when (event) {
+                Lifecycle.Event.ON_RESUME -> playerView.onResume()
+                Lifecycle.Event.ON_PAUSE -> playerView.onPause()
+                Lifecycle.Event.ON_DESTROY -> exoPlayer.release()
+                else -> {}
+            }
+        }
+
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            exoPlayer.release()
+        }
+    }
+    return playerView
 }
 
 @Composable

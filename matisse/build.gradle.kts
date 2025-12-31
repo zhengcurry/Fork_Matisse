@@ -32,45 +32,15 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 }
 
-val matisseVersion = "2.0.0"
+val matisseVersion = "2.0.1"
 
 // 配置 JitPack 发布
+// 简化配置，避免生成多个重复的 artifact
 publishing {
     publications {
         create<MavenPublication>("release") {
-            groupId = "com.github.zhengcurry"
-            artifactId = "Fork_Matisse"
-            version = matisseVersion
-
             afterEvaluate {
                 from(components["release"])
-            }
-
-            pom {
-                name.set("Matisse")
-                description.set("An Android Image and Video Selection Framework Implemented with Jetpack Compose - Fork Version")
-                url.set("https://github.com/zhengcurry/Fork_Matisse")
-
-                licenses {
-                    license {
-                        name.set("The Apache License, Version 2.0")
-                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
-                    }
-                }
-
-                developers {
-                    developer {
-                        id.set("zhengcurry")
-                        name.set("zhengcurry")
-                        url.set("https://github.com/zhengcurry")
-                    }
-                }
-
-                scm {
-                    url.set("https://github.com/zhengcurry/Fork_Matisse")
-                    connection.set("scm:git:git://github.com/zhengcurry/Fork_Matisse.git")
-                    developerConnection.set("scm:git:ssh://git@github.com/zhengcurry/Fork_Matisse.git")
-                }
             }
         }
     }

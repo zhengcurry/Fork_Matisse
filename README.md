@@ -10,6 +10,28 @@
 - 支持同时选择图片和视频，或者单独选择两者之一
 - 支持精细自定义主题，提供了日夜间两套默认主题
 
+## 依赖引入
+
+### Step 1. 在项目根目录的 `settings.gradle.kts` 中添加 JitPack 仓库
+
+```kotlin
+dependencyResolutionManagement {
+    repositories {
+        google()
+        mavenCentral()
+        maven { url = uri("https://jitpack.io") }
+    }
+}
+```
+
+### Step 2. 在模块的 `build.gradle.kts` 中添加依赖
+
+```kotlin
+dependencies {
+    implementation("com.github.zhengcurry:Fork_Matisse:1.0.0")
+}
+```
+
 关联的文章：
 
 - [Jetpack Compose 实现一个图片选择框架](https://juejin.cn/post/7108420791502372895)

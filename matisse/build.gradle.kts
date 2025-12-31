@@ -32,52 +32,45 @@ dependencies {
     implementation("androidx.constraintlayout:constraintlayout:1.1.3")
 }
 
-val matisseVersion = "2.2.2"
+val matisseVersion = "1.0.0"
 
-if (signingKeyId == null) {
-    publishing {
-        publications {
-            create<MavenPublication>("release") {
-                afterEvaluate {
-                    from(components["release"])
-                }
-            }
-        }
-    }
-} else {
-    mavenPublishing {
-        publishToMavenCentral()
-        signAllPublications()
-        configure(platform = AndroidSingleVariantLibrary())
-        coordinates(
-            groupId = "io.github.leavesczy",
-            artifactId = "matisse",
+// 配置 JitPack 发布
+publishing {
+    publications {
+        create<MavenPublication>("release") {
+            groupId = "com.github.zhengcurry"
+            artifactId = "Fork_Matisse"
             version = matisseVersion
-        )
-        pom {
-            name = "Matisse"
-            description =
-                "An Android Image and Video Selection Framework Implemented with Jetpack Compose"
-            inceptionYear = "2025"
-            url = "https://github.com/leavesCZY/Matisse"
-            licenses {
-                license {
-                    name = "The Apache License, Version 2.0"
-                    url = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                    distribution = "https://www.apache.org/licenses/LICENSE-2.0.txt"
-                }
+
+            afterEvaluate {
+                from(components["release"])
             }
-            developers {
-                developer {
-                    id = "leavesCZY"
-                    name = "leavesCZY"
-                    url = "https://github.com/leavesCZY"
+
+            pom {
+                name.set("Matisse")
+                description.set("An Android Image and Video Selection Framework Implemented with Jetpack Compose - Fork Version")
+                url.set("https://github.com/zhengcurry/Fork_Matisse")
+
+                licenses {
+                    license {
+                        name.set("The Apache License, Version 2.0")
+                        url.set("https://www.apache.org/licenses/LICENSE-2.0.txt")
+                    }
                 }
-            }
-            scm {
-                url = "https://github.com/leavesCZY/Matisse"
-                connection = "scm:git:git://github.com/leavesCZY/Matisse.git"
-                developerConnection = "scm:git:ssh://git@github.com/leavesCZY/Matisse.git"
+
+                developers {
+                    developer {
+                        id.set("zhengcurry")
+                        name.set("zhengcurry")
+                        url.set("https://github.com/zhengcurry")
+                    }
+                }
+
+                scm {
+                    url.set("https://github.com/zhengcurry/Fork_Matisse")
+                    connection.set("scm:git:git://github.com/zhengcurry/Fork_Matisse.git")
+                    developerConnection.set("scm:git:ssh://git@github.com/zhengcurry/Fork_Matisse.git")
+                }
             }
         }
     }

@@ -27,12 +27,12 @@ dependencies {
     compileOnly(libs.coil.compose)
     compileOnly(libs.glide.compose)
     debugImplementation(libs.androidx.ui.tooling)
-    implementation("androidx.media3:media3-exoplayer:1.8.0")
-    implementation("androidx.media3:media3-ui:1.8.0")
-    implementation("androidx.constraintlayout:constraintlayout:1.1.3")
+    implementation(libs.androidx.media3.exoplayer)
+    implementation(libs.androidx.media3.ui)
+    implementation(libs.androidx.constraintlayout)
 }
 
-val matisseVersion = "1.0.0"
+val matisseVersion = "2.0.0"
 
 // 配置 JitPack 发布
 publishing {

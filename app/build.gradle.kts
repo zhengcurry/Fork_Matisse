@@ -23,6 +23,6 @@ dependencies {
     implementation(libs.coil.video)
     implementation(libs.glide.compose)
     //
-    implementation("com.github.zhengcurry:Fork_Matisse:2.0.1")
-//    implementation(project(":matisse"))
+//    implementation("com.github.zhengcurry:Fork_Matisse:2.0.1")
+    implementation(project(":matisse"))
 }

@@ -39,7 +39,6 @@ class CoilImageEngine : ImageEngine {
                 .fillMaxSize(),
             model = ImageRequest.Builder(LocalContext.current)
                 .data(mediaResource.uri)
-                .size(50)
                 .diskCachePolicy(CachePolicy.ENABLED)
                 .memoryCachePolicy(CachePolicy.ENABLED)
                 .crossfade(true)

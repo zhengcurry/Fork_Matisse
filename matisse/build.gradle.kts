@@ -32,7 +32,7 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 }
 
-val matisseVersion = "2.0.1"
+val matisseVersion = "3.0.0"
 
 // 配置 JitPack 发布
 // 简化配置，避免生成多个重复的 artifact

@@ -50,6 +50,8 @@ internal fun MediaTypeTopBar(
     onClickMediaType: (Int) -> Unit,
     onClickChoice: (Boolean) -> Unit,
     onClickDelete: () -> Unit,
+    enableSelectAll: Boolean = false,
+    onClickSelectAll: () -> Unit = {},
 ) {
     val options = listOf(R.string.matisse_image, R.string.matisse_video)
     var selectedIndex by remember { mutableIntStateOf(0) }
@@ -102,6 +104,22 @@ internal fun MediaTypeTopBar(
 
             if (choice) {
                 Row {
+                    if (enableSelectAll) {
+                        Button(
+                            onClick = onClickSelectAll,
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = colorResource(id = R.color.matisse_type_common_btn_color)
+                            ),
+                            shape = RoundedCornerShape(8.dp)
+                        ) {
+                            Text(
+                                stringResource(R.string.matisse_select_all),
+                                color = Color.White
+                            )
+                        }
+                        Spacer(modifier = Modifier.width(8.dp))
+                    }
+
                     Button(
                         onClick = {
                             onClickDelete()
@@ -117,7 +135,7 @@ internal fun MediaTypeTopBar(
                         )
                     }
 
-                    Spacer(modifier = Modifier.width(12.dp))
+                    Spacer(modifier = Modifier.width(8.dp))
 
                     Button(
                         onClick = {

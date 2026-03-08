@@ -100,7 +100,9 @@ internal fun MatissePage(
                 modifier = Modifier,
                 onClickMediaType = pageViewState.onClickMediaType,
                 onClickChoice = { it -> choice = it },
-                onClickDelete = { showDialog = true }
+                onClickDelete = { showDialog = true },
+                enableSelectAll = pageViewState.enableSelectAll,
+                onClickSelectAll = pageViewState.onClickSelectAll
             )
         },
         bottomBar = {

@@ -82,6 +82,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             onClickDelete = ::deleteMediaResources,
             reloadMediaResources = ::reloadMediaResources,
             showDateHeaders = matisse.showDateHeaders,
+            enableSelectAll = matisse.enableSelectAll,
+            onClickSelectAll = ::onClickSelectAll,
         )
     )
         private set
@@ -303,6 +305,38 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             MediaType.ImageOnly
         }
         requestReadMediaPermissionResult(true)
+    }
+
+    private fun onClickSelectAll() {
+        val resources = pageViewState.selectedBucket.resources
+        val allSelected = resources.isNotEmpty() && resources.all { it.selectState.value.isSelected }
+        if (allSelected) {
+            // 已全选 → 取消全选
+            resetAllMediaSelectState(state = unselectedEnabledMediaSelectState)
+        } else {
+            // 未全选 → 全选（受 maxSelectable 限制）
+            var positionIndex = 0
+            allMediaResources.forEach { media ->
+                val selectState = media.selectState as MutableState<MatisseMediaSelectState>
+                val inCurrentBucket = resources.contains(media)
+                if (inCurrentBucket && positionIndex < maxSelectable) {
+                    selectState.value = MatisseMediaSelectState(
+                        isSelected = true,
+                        isEnabled = true,
+                        positionIndex = positionIndex
+                    )
+                    positionIndex++
+                } else {
+                    selectState.value = if (positionIndex >= maxSelectable) {
+                        unselectedDisabledMediaSelectState
+                    } else {
+                        unselectedEnabledMediaSelectState
+                    }
+                }
+            }
+        }
+        updatePreviewPageIfNeed()
+        bottomBarViewState = buildBottomBarViewState()
     }
 
     private suspend fun onClickBucket(bucketId: String) {

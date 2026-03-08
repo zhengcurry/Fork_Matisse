@@ -33,6 +33,8 @@ internal data class MatissePageViewState(
     val onClickDelete: (launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
     val reloadMediaResources: () -> Unit,
     val showDateHeaders: Boolean = false,
+    val enableSelectAll: Boolean = false,
+    val onClickSelectAll: () -> Unit = {},
 )
 
 /**

@@ -52,6 +52,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val mediaFilter = matisse.mediaFilter
 
+    private val onlyFolders = matisse.onlyFolders
+
     private val defaultBucketId = "&__matisseDefaultBucketId__&"
 
     private val defaultBucket = MatisseMediaBucket(
@@ -248,6 +250,10 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
                 emptyList()
             } else {
                 resourcesInfo.mapNotNull {
+                    // 文件夹限定过滤：onlyFolders 非空时仅保留指定 bucketName
+                    if (onlyFolders.isNotEmpty() && !onlyFolders.contains(it.bucketName)) {
+                        return@mapNotNull null
+                    }
                     val media = MediaResource(
                         uri = it.uri,
                         path = it.path,

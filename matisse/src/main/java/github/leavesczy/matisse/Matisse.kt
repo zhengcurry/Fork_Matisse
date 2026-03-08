@@ -20,6 +20,8 @@ import kotlinx.parcelize.Parcelize
  * @param mediaFilter 媒体资源的筛选规则。默认不进行筛选
  * @param captureStrategy 拍照策略。默认不开启拍照功能
  * @param showDateHeaders 是否在媒体列表中插入日期分组标题。默认关闭
+ * @param onlyFolders 限定只显示指定文件夹（bucketName）中的媒体资源。
+ *                    空集合表示不限定，显示全部。默认不限定
  */
 @Stable
 @Parcelize
@@ -32,7 +34,8 @@ data class Matisse(
     val singleMediaType: Boolean = false,
     val mediaFilter: MediaFilter? = null,
     val captureStrategy: CaptureStrategy? = null,
-    val showDateHeaders: Boolean = false
+    val showDateHeaders: Boolean = false,
+    val onlyFolders: Set<String> = emptySet()
 ) : Parcelable {
 
     init {

@@ -8,7 +8,6 @@ import android.database.Cursor
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
-import android.util.Log
 import androidx.activity.compose.ManagedActivityResultLauncher
 import androidx.activity.result.ActivityResult
 import androidx.activity.result.IntentSenderRequest
@@ -79,7 +78,6 @@ internal object MediaProvider {
         context: Context,
         uris: List<Uri>
     ) {
-        Log.e("curry", "deleteMedia: $uris")
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
             try {
                 val deleteRequest = MediaStore.createDeleteRequest(context.contentResolver, uris)

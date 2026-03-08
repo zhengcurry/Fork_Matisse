@@ -135,4 +135,12 @@ data class MediaResource(
     val isVideo: Boolean
         get() = mimeType.startsWith(prefix = VideoMimeTypePrefix)
 
+    /**
+     * 在 Android Q+ scoped storage 下 [path] 可能为空字符串。
+     * 若需将 path 传入 ExifInterface 等需要文件路径的 native 接口，
+     * 请先检查此属性，防止因空路径导致 native 层 SIGSEGV 崩溃。
+     */
+    val hasValidPath: Boolean
+        get() = path.isNotBlank()
+
 }

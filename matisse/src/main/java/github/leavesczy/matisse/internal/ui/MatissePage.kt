@@ -107,7 +107,7 @@ internal fun MatissePage(
         },
         bottomBar = {
         }
-    } { innerPadding ->
+    ) { innerPadding ->
         val gridItems = remember(
             pageViewState.selectedBucket.resources,
             pageViewState.showDateHeaders

@@ -62,6 +62,7 @@ internal class MatisseVideoViewActivity : AppCompatActivity() {
 
     override fun onPause() {
         lastPosition = videoView.currentPosition
+        videoView.pause()
         super.onPause()
     }
 

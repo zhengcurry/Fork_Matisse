@@ -3,18 +3,24 @@ package github.leavesczy.matisse
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
+import android.database.ContentObserver
 import android.net.Uri
 import android.os.Build
 import android.os.Bundle
 import android.os.Environment
+import android.os.Handler
+import android.os.Looper
 import android.os.Parcelable
 import androidx.compose.runtime.Stable
 import androidx.core.app.ActivityCompat
 import androidx.core.content.FileProvider
 import github.leavesczy.matisse.internal.logic.MediaProvider
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
+import kotlinx.coroutines.channels.awaitClose
+import kotlinx.coroutines.flow.callbackFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.withContext
+import kotlinx.coroutines.withTimeoutOrNull
 import kotlinx.parcelize.IgnoredOnParcel
 import kotlinx.parcelize.Parcelize
 import java.io.File
@@ -183,14 +189,36 @@ data class MediaStoreCaptureStrategy(private val extra: Bundle = Bundle.EMPTY) :
 
     override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
         return withContext(context = Dispatchers.Default) {
-            repeat(times = 10) {
-                val result = loadResources(context = context, uri = imageUri)
-                if (result != null) {
-                    return@withContext result
+            // 先尝试直接读取（拍照后 MediaStore 可能已同步）
+            loadResources(context = context, uri = imageUri)
+                ?: waitForMediaStoreSync(context = context, imageUri = imageUri)
+        }
+    }
+
+    /**
+     * 通过 ContentObserver 监听 MediaStore 变更，等待拍照文件完成索引。
+     * 最长等待 3 秒，超时则返回 null。
+     */
+    private suspend fun waitForMediaStoreSync(context: Context, imageUri: Uri): MediaResource? {
+        val result = withTimeoutOrNull(timeMillis = 3_000L) {
+            callbackFlow {
+                val observer = object : ContentObserver(Handler(Looper.getMainLooper())) {
+                    override fun onChange(selfChange: Boolean) {
+                        trySend(Unit)
+                    }
                 }
-                delay(timeMillis = 50L)
-            }
-            return@withContext null
+                context.contentResolver.registerContentObserver(
+                    imageUri, false, observer
+                )
+                awaitClose {
+                    context.contentResolver.unregisterContentObserver(observer)
+                }
+            }.first()
+        }
+        return if (result != null) {
+            loadResources(context = context, uri = imageUri)
+        } else {
+            null
         }
     }
 

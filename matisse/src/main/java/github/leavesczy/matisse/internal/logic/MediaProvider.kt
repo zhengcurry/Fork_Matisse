@@ -203,11 +203,13 @@ internal object MediaProvider {
         val mediaTypeImageColumn = MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE
         val mediaTypeVideoColumn = MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO
         val mimeTypeColumn = MediaStore.Files.FileColumns.MIME_TYPE
+        val sizeColumn = MediaStore.MediaColumns.SIZE
+        val sizeFilter = "$sizeColumn > 0"
         val queryImageSelection =
             "$mediaTypeColumn = $mediaTypeImageColumn and $mimeTypeColumn like 'image/%'"
         val queryVideoSelection =
             "$mediaTypeColumn = $mediaTypeVideoColumn and $mimeTypeColumn like 'video/%'"
-        return when (mediaType) {
+        val typeSelection = when (mediaType) {
             is MediaType.ImageOnly -> {
                 queryImageSelection
             }
@@ -235,6 +237,7 @@ internal object MediaProvider {
                 )
             }
         }
+        return "($typeSelection) and $sizeFilter"
     }
 
     suspend fun loadResources(context: Context, uri: Uri): MediaInfo? {

@@ -92,8 +92,15 @@ open class FileProviderCaptureStrategy(
     private val extra: Bundle = Bundle.EMPTY
 ) : CaptureStrategy {
 
-    @IgnoredOnParcel
-    private val uriFileMap = mutableMapOf<Uri, File>()
+    companion object {
+        /**
+         * 进程级单例 Map，用于保存 Uri → File 映射。
+         * 使用 companion object 而非实例字段，确保 Activity 因配置变更
+         * 重建（横竖屏切换等）导致 CaptureStrategy 重新反序列化后，
+         * 映射关系不会丢失。
+         */
+        private val uriFileMap = mutableMapOf<Uri, File>()
+    }
 
     final override fun shouldRequestWriteExternalStoragePermission(context: Context): Boolean {
         return false
@@ -128,9 +135,9 @@ open class FileProviderCaptureStrategy(
         return context.getExternalFilesDir(Environment.DIRECTORY_PICTURES)!!
     }
 
-    final override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource {
+    final override suspend fun loadResource(context: Context, imageUri: Uri): MediaResource? {
         return withContext(context = Dispatchers.Main.immediate) {
-            val imageFile = uriFileMap[imageUri]!!
+            val imageFile = uriFileMap[imageUri] ?: return@withContext null
             uriFileMap.remove(key = imageUri)
             MediaResource(
                 uri = imageUri,

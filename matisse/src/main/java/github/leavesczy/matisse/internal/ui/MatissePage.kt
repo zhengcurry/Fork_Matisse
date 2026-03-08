@@ -15,8 +15,10 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.GridItemSpan
 import androidx.compose.foundation.lazy.grid.LazyGridItemScope
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
@@ -27,6 +29,7 @@ import androidx.compose.material.icons.filled.PhotoCamera
 import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
@@ -39,14 +42,20 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatisseBottomBarViewState
+import github.leavesczy.matisse.internal.logic.MatisseGridItem
 import github.leavesczy.matisse.internal.logic.MatisseMediaExtend
 import github.leavesczy.matisse.internal.logic.MatissePageViewState
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 /**
  * @Author: leavesCZY
@@ -96,7 +105,16 @@ internal fun MatissePage(
         },
         bottomBar = {
         }
-    ) { innerPadding ->
+    } { innerPadding ->
+        val gridItems = remember(
+            pageViewState.selectedBucket.resources,
+            pageViewState.showDateHeaders
+        ) {
+            buildGridItems(
+                resources = pageViewState.selectedBucket.resources,
+                showDateHeaders = pageViewState.showDateHeaders
+            )
+        }
         LazyVerticalGrid(
             modifier = Modifier
                 .fillMaxSize()
@@ -127,35 +145,94 @@ internal fun MatissePage(
                 }
             }
             items(
-                items = pageViewState.selectedBucket.resources,
-                key = {
-                    it.mediaId
+                items = gridItems,
+                key = { item ->
+                    when (item) {
+                        is MatisseGridItem.DateHeader -> "header_${item.dateLabel}"
+                        is MatisseGridItem.MediaEntry -> item.media.mediaId
+                    }
                 },
-                contentType = {
-                    "MediaItem"
+                span = { item ->
+                    when (item) {
+                        is MatisseGridItem.DateHeader -> GridItemSpan(maxLineSpan)
+                        is MatisseGridItem.MediaEntry -> GridItemSpan(1)
+                    }
+                },
+                contentType = { item ->
+                    when (item) {
+                        is MatisseGridItem.DateHeader -> "DateHeader"
+                        is MatisseGridItem.MediaEntry -> "MediaItem"
+                    }
                 }
-            ) {
-                if (pageViewState.fastSelect) {
-                    MediaItemFastSelect(
-                        modifier = Modifier
-                            .matisseAnimateItem(lazyGridItemScope = this),
-                        mediaResource = it.media,
-                        imageEngine = pageViewState.imageEngine,
-                        onClickMedia = selectMediaInFastSelectMode
-                    )
-                } else {
-                    MediaItem(
-                        modifier = Modifier
-                            .matisseAnimateItem(lazyGridItemScope = this),
-                        mediaResource = it,
-                        imageEngine = pageViewState.imageEngine,
-                        onClickMedia = pageViewState.onClickMedia,
-                        onClickCheckBox = pageViewState.onMediaCheckChanged,
-                        choice = choice
-                    )
+            ) { item ->
+                when (item) {
+                    is MatisseGridItem.DateHeader -> {
+                        DateHeaderItem(dateLabel = item.dateLabel)
+                    }
+
+                    is MatisseGridItem.MediaEntry -> {
+                        if (pageViewState.fastSelect) {
+                            MediaItemFastSelect(
+                                modifier = Modifier
+                                    .matisseAnimateItem(lazyGridItemScope = this),
+                                mediaResource = item.media.media,
+                                imageEngine = pageViewState.imageEngine,
+                                onClickMedia = selectMediaInFastSelectMode
+                            )
+                        } else {
+                            MediaItem(
+                                modifier = Modifier
+                                    .matisseAnimateItem(lazyGridItemScope = this),
+                                mediaResource = item.media,
+                                imageEngine = pageViewState.imageEngine,
+                                onClickMedia = pageViewState.onClickMedia,
+                                onClickCheckBox = pageViewState.onMediaCheckChanged,
+                                choice = choice
+                            )
+                        }
+                    }
                 }
             }
         }
+    }
+}
+
+private fun buildGridItems(
+    resources: List<MatisseMediaExtend>,
+    showDateHeaders: Boolean
+): List<MatisseGridItem> {
+    if (!showDateHeaders) {
+        return resources.map { MatisseGridItem.MediaEntry(it) }
+    }
+    val dateFormat = SimpleDateFormat("yyyy-MM-dd", Locale.getDefault())
+    val result = mutableListOf<MatisseGridItem>()
+    var lastDate = ""
+    for (resource in resources) {
+        val dateLabel = dateFormat.format(Date(resource.media.dateModified * 1000L))
+        if (dateLabel != lastDate) {
+            result.add(MatisseGridItem.DateHeader(dateLabel))
+            lastDate = dateLabel
+        }
+        result.add(MatisseGridItem.MediaEntry(resource))
+    }
+    return result
+}
+
+@Composable
+private fun DateHeaderItem(dateLabel: String) {
+    Box(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(color = colorResource(id = R.color.matisse_date_header_background_color))
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+        contentAlignment = Alignment.CenterStart
+    ) {
+        Text(
+            text = dateLabel,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Medium,
+            color = colorResource(id = R.color.matisse_date_header_text_color)
+        )
     }
 }
 

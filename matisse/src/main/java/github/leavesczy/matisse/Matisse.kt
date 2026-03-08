@@ -19,6 +19,7 @@ import kotlinx.parcelize.Parcelize
  * @param singleMediaType 是否允许同时选择图片和视频。默认允许
  * @param mediaFilter 媒体资源的筛选规则。默认不进行筛选
  * @param captureStrategy 拍照策略。默认不开启拍照功能
+ * @param showDateHeaders 是否在媒体列表中插入日期分组标题。默认关闭
  */
 @Stable
 @Parcelize
@@ -30,7 +31,8 @@ data class Matisse(
     val mediaType: MediaType = MediaType.ImageOnly,
     val singleMediaType: Boolean = false,
     val mediaFilter: MediaFilter? = null,
-    val captureStrategy: CaptureStrategy? = null
+    val captureStrategy: CaptureStrategy? = null,
+    val showDateHeaders: Boolean = false
 ) : Parcelable {
 
     init {

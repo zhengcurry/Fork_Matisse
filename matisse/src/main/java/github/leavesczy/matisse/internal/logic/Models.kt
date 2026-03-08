@@ -32,7 +32,17 @@ internal data class MatissePageViewState(
     val onClickMediaType: (Int) -> Unit,
     val onClickDelete: (launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
     val reloadMediaResources: () -> Unit,
+    val showDateHeaders: Boolean = false,
 )
+
+/**
+ * 媒体网格中的条目类型：日期分组标题 或 媒体条目。
+ * 仅当 [MatissePageViewState.showDateHeaders] 为 true 时使用。
+ */
+internal sealed class MatisseGridItem {
+    data class DateHeader(val dateLabel: String) : MatisseGridItem()
+    data class MediaEntry(val media: MatisseMediaExtend) : MatisseGridItem()
+}
 
 @Stable
 internal data class MatisseMediaExtend(

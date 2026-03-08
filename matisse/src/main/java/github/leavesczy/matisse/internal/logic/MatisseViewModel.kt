@@ -79,6 +79,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             onClickMediaType = ::onClickMediaType,
             onClickDelete = ::deleteMediaResources,
             reloadMediaResources = ::reloadMediaResources,
+            showDateHeaders = matisse.showDateHeaders,
         )
     )
         private set

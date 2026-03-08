@@ -40,4 +40,7 @@
     <color name="matisse_dialog_bg_color">#FF32373D</color>
     <color name="matisse_dialog_positive_btn_color">#FF0079FF</color>
     <color name="matisse_dialog_negative_btn_color">#FF5A5E63</color>
+
+    <color name="matisse_date_header_background_color">#FF000000</color>
+    <color name="matisse_date_header_text_color">#FFFFFFFF</color>
 </resources>

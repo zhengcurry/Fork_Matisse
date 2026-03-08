@@ -5,6 +5,7 @@ import android.content.ContentValues
 import android.content.Context
 import android.content.IntentSender
 import android.database.Cursor
+import android.media.MediaScannerConnection
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
@@ -59,17 +60,51 @@ internal object MediaProvider {
 
     suspend fun deleteMedia(context: Context, uri: Uri) {
         withContext(context = Dispatchers.Default) {
+            val path = queryPath(context, uri)
             try {
                 context.contentResolver.delete(uri, null, null)
             } catch (throwable: Throwable) {
                 throwable.printStackTrace()
             }
+            if (!path.isNullOrBlank()) {
+                MediaScannerConnection.scanFile(context, arrayOf(path), null, null)
+            }
         }
     }
 
     suspend fun deleteMoreMedia(context: Context, uris: List<Uri>) {
-        for (uri in uris) {
-            deleteMedia(context, uri)
+        withContext(context = Dispatchers.Default) {
+            val paths = uris.mapNotNull { queryPath(context, it) }
+            for (uri in uris) {
+                try {
+                    context.contentResolver.delete(uri, null, null)
+                } catch (throwable: Throwable) {
+                    throwable.printStackTrace()
+                }
+            }
+            if (paths.isNotEmpty()) {
+                MediaScannerConnection.scanFile(context, paths.toTypedArray(), null, null)
+            }
+        }
+    }
+
+    private fun queryPath(context: Context, uri: Uri): String? {
+        return try {
+            context.contentResolver.query(
+                uri,
+                arrayOf(MediaStore.MediaColumns.DATA),
+                null,
+                null,
+                null
+            )?.use { cursor ->
+                if (cursor.moveToFirst()) {
+                    cursor.getString(cursor.getColumnIndexOrThrow(MediaStore.MediaColumns.DATA))
+                } else {
+                    null
+                }
+            }
+        } catch (throwable: Throwable) {
+            null
         }
     }
 

@@ -17,7 +17,6 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -65,6 +64,9 @@ import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
 import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 import kotlin.math.absoluteValue
 
 /**
@@ -72,6 +74,20 @@ import kotlin.math.absoluteValue
  * @Date: 2022/6/1 19:14
  * @Desc:
  */
+private fun formatFileSize(bytes: Long): String = when {
+    bytes <= 0 -> "-"
+    bytes < 1024 -> "$bytes B"
+    bytes < 1024 * 1024 -> "${"%.1f".format(bytes / 1024.0)} KB"
+    bytes < 1024L * 1024 * 1024 -> "${"%.1f".format(bytes / (1024.0 * 1024))} MB"
+    else -> "${"%.1f".format(bytes / (1024.0 * 1024 * 1024))} GB"
+}
+
+private fun formatDate(epochSeconds: Long): String {
+    if (epochSeconds <= 0) return "-"
+    return SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault())
+        .format(Date(epochSeconds * 1000L))
+}
+
 @Composable
 internal fun MatissePreviewPage(
     pageViewState: MatissePreviewPageViewState,
@@ -166,7 +182,8 @@ internal fun MatissePreviewPage(
                         pageIndex = pageIndex,
                         imageEngine = imageEngine,
                         mediaResource = pageViewState.previewResources[pageIndex].media,
-                        requestOpenVideo = requestOpenVideo
+                        requestOpenVideo = requestOpenVideo,
+                        showMediaInfo = pageViewState.showMediaInfo
                     )
                 }
             }
@@ -181,7 +198,8 @@ private fun PreviewPage(
     pageIndex: Int,
     imageEngine: ImageEngine,
     mediaResource: MediaResource,
-    requestOpenVideo: (MediaResource) -> Unit
+    requestOpenVideo: (MediaResource) -> Unit,
+    showMediaInfo: Boolean
 ) {
     val fraction by remember {
         derivedStateOf {
@@ -205,71 +223,69 @@ private fun PreviewPage(
                     scaleX = fraction
                     scaleY = fraction
                     alpha = fraction
-                },
+                }
+                .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
-            Row(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                Column(
-                    Modifier
-                        .fillMaxWidth(0.3f)
-                        .padding(start = 20.dp)
-                ) {
-                    Text(
-                        modifier = Modifier,
-                        text = mediaResource.name,
-                        fontSize = 16.sp,
-                        color = Color.White
-                    )
-
-                    Spacer(modifier = Modifier.height(12.dp))
-                    Text(
-                        modifier = Modifier,
-                        text = "大小：${mediaResource.size}",
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
-                    Text(
-                        modifier = Modifier,
-                        text = "时间：${mediaResource.dateModified}",
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
-                    Text(
-                        modifier = Modifier,
-                        text = "位置：${mediaResource.path}",
-                        fontSize = 14.sp,
-                        color = Color.White
-                    )
-                }
-
-                Box(
+            if (mediaResource.isVideo) {
+                val player = exoPlayer(mediaResource.uri)
+                AndroidView(
+                    factory = { context: Context -> player },
                     modifier = Modifier
+                        .clipToBounds()
                         .fillMaxSize()
-                ) {
-                    if (mediaResource.isVideo) {
-                        val player = exoPlayer(mediaResource.uri)
-                        AndroidView(
-                            factory = { context: Context ->
-                                player
-                            },
-                            modifier = Modifier
-                                .clipToBounds()
-                                .fillMaxSize()
-                                .align(Alignment.Center),
-                            update = { playerView: PlayerView ->
-                            }
-                        )
-                    } else {
-                        imageEngine.Image(
-                            Modifier
-                                .align(Alignment.Center), mediaResource = mediaResource
-                        )
-                    }
-                }
+                        .align(Alignment.Center),
+                    update = {}
+                )
+            } else {
+                imageEngine.Image(
+                    modifier = Modifier.align(Alignment.Center),
+                    mediaResource = mediaResource
+                )
             }
+
+            if (showMediaInfo) {
+                MediaInfoOverlay(
+                    modifier = Modifier.align(Alignment.BottomStart),
+                    mediaResource = mediaResource
+                )
+            }
+        }
+    }
+}
+
+@Composable
+private fun MediaInfoOverlay(modifier: Modifier, mediaResource: MediaResource) {
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .background(Color(0x99000000))
+            .padding(horizontal = 16.dp, vertical = 10.dp)
+    ) {
+        Text(
+            text = mediaResource.name,
+            fontSize = 14.sp,
+            fontWeight = FontWeight.Medium,
+            color = Color.White
+        )
+        Spacer(modifier = Modifier.height(4.dp))
+        Text(
+            text = formatFileSize(mediaResource.size),
+            fontSize = 12.sp,
+            color = Color(0xCCFFFFFF)
+        )
+        Text(
+            text = formatDate(mediaResource.dateModified),
+            fontSize = 12.sp,
+            color = Color(0xCCFFFFFF)
+        )
+        if (mediaResource.hasValidPath) {
+            Text(
+                text = mediaResource.path,
+                fontSize = 11.sp,
+                color = Color(0x99FFFFFF),
+                maxLines = 2
+            )
         }
     }
 }

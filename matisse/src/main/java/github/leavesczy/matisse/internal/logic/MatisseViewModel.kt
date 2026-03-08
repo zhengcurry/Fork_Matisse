@@ -104,7 +104,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             onMediaCheckChanged = {},
             onDismissRequest = {},
             deleteMediaResources = ::deleteMediaResources,
-            reloadMediaResources = ::reloadMediaResources
+            reloadMediaResources = ::reloadMediaResources,
+            showMediaInfo = matisse.showMediaInfo,
         )
     )
         private set

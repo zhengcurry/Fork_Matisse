@@ -109,4 +109,5 @@ internal data class MatissePreviewPageViewState(
     val onDismissRequest: () -> Unit,
     val deleteMediaResources: (uri: Uri, launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
     val reloadMediaResources: () -> Unit,
+    val showMediaInfo: Boolean = false,
 )

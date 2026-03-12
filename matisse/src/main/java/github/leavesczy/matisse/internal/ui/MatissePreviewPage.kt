@@ -44,7 +44,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -52,7 +51,6 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.util.lerp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
@@ -67,7 +65,6 @@ import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
-import kotlin.math.absoluteValue
 
 /**
  * @Author: leavesCZY
@@ -170,6 +167,7 @@ internal fun MatissePreviewPage(
                         .weight(weight = 1f),
                     state = pagerState,
                     verticalAlignment = Alignment.CenterVertically,
+                    beyondViewportPageCount = 0,
                     key = { index ->
                         pageViewState.previewResources[index].mediaId
                     }
@@ -178,8 +176,6 @@ internal fun MatissePreviewPage(
                     PreviewPage(
                         modifier = Modifier
                             .fillMaxSize(),
-                        pagerState = pagerState,
-                        pageIndex = pageIndex,
                         imageEngine = imageEngine,
                         mediaResource = pageViewState.previewResources[pageIndex].media,
                         requestOpenVideo = requestOpenVideo,
@@ -194,36 +190,17 @@ internal fun MatissePreviewPage(
 @Composable
 private fun PreviewPage(
     modifier: Modifier,
-    pagerState: PagerState,
-    pageIndex: Int,
     imageEngine: ImageEngine,
     mediaResource: MediaResource,
     requestOpenVideo: (MediaResource) -> Unit,
     showMediaInfo: Boolean
 ) {
-    val fraction by remember {
-        derivedStateOf {
-            val pageOffset =
-                (pagerState.currentPage - pageIndex + pagerState.currentPageOffsetFraction).absoluteValue
-            val progress = 1f - pageOffset.coerceIn(0f, 1f)
-            lerp(
-                start = 0.80f,
-                stop = 1f,
-                fraction = progress
-            )
-        }
-    }
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .graphicsLayer {
-                    scaleX = fraction
-                    scaleY = fraction
-                    alpha = fraction
-                }
                 .fillMaxSize(),
             contentAlignment = Alignment.Center
         ) {
@@ -293,7 +270,7 @@ private fun MediaInfoOverlay(modifier: Modifier, mediaResource: MediaResource) {
 @Composable
 private fun exoPlayer(uri: Uri): PlayerView {
     val context = LocalContext.current
-    val exoPlayer = remember {
+    val exoPlayer = remember(uri) {
         ExoPlayer.Builder(context).build().apply {
             addListener(object : Player.Listener {
                 override fun onPlayWhenReadyChanged(playWhenReady: Boolean, playbackState: Int) {
@@ -304,28 +281,27 @@ private fun exoPlayer(uri: Uri): PlayerView {
                 }
             })
             setMediaItem(
-                androidx.media3.common.MediaItem.fromUri(
-                    uri
-                )
+                androidx.media3.common.MediaItem.fromUri(uri)
             )
             prepare()
             playWhenReady = true
         }
     }
-    val playerView = PlayerView(context).apply {
-        player = exoPlayer
-        layoutParams =
-            FrameLayout.LayoutParams(
+    val playerView = remember(uri) {
+        PlayerView(context).apply {
+            player = exoPlayer
+            layoutParams = FrameLayout.LayoutParams(
                 ViewGroup.LayoutParams.MATCH_PARENT,
                 ViewGroup.LayoutParams.MATCH_PARENT
             )
-        // 清除播放器的焦点，避免找不到焦点
-        setFocusable(false)
-        clearFocus()
+            // 清除播放器的焦点，避免找不到焦点
+            setFocusable(false)
+            clearFocus()
+        }
     }
     // 监听宿主生命周期
     val lifecycleOwner = LocalLifecycleOwner.current
-    DisposableEffect(lifecycleOwner) {
+    DisposableEffect(lifecycleOwner, uri) {
         val observer = LifecycleEventObserver { _, event ->
             when (event) {
                 Lifecycle.Event.ON_RESUME -> playerView.onResume()

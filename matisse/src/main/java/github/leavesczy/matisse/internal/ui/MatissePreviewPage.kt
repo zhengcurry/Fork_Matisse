@@ -17,6 +17,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.fillMaxSize
@@ -44,6 +45,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.util.lerp
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
@@ -65,6 +68,7 @@ import github.leavesczy.matisse.internal.logic.MatissePreviewPageViewState
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
+import kotlin.math.absoluteValue
 
 /**
  * @Author: leavesCZY
@@ -176,10 +180,11 @@ internal fun MatissePreviewPage(
                     PreviewPage(
                         modifier = Modifier
                             .fillMaxSize(),
+                        pagerState = pagerState,
+                        pageIndex = pageIndex,
                         imageEngine = imageEngine,
                         mediaResource = pageViewState.previewResources[pageIndex].media,
-                        requestOpenVideo = requestOpenVideo,
-                        showMediaInfo = pageViewState.showMediaInfo
+                        requestOpenVideo = requestOpenVideo
                     )
                 }
             }
@@ -190,79 +195,95 @@ internal fun MatissePreviewPage(
 @Composable
 private fun PreviewPage(
     modifier: Modifier,
+    pagerState: PagerState,
+    pageIndex: Int,
     imageEngine: ImageEngine,
     mediaResource: MediaResource,
-    requestOpenVideo: (MediaResource) -> Unit,
-    showMediaInfo: Boolean
+    requestOpenVideo: (MediaResource) -> Unit
 ) {
+    val fraction by remember {
+        derivedStateOf {
+            val pageOffset =
+                (pagerState.currentPage - pageIndex + pagerState.currentPageOffsetFraction).absoluteValue
+            val progress = 1f - pageOffset.coerceIn(0f, 1f)
+            lerp(
+                start = 0.80f,
+                stop = 1f,
+                fraction = progress
+            )
+        }
+    }
     Box(
         modifier = modifier,
         contentAlignment = Alignment.Center
     ) {
         Box(
             modifier = Modifier
-                .fillMaxSize(),
+                .graphicsLayer {
+                    scaleX = fraction
+                    scaleY = fraction
+                    alpha = fraction
+                },
             contentAlignment = Alignment.Center
         ) {
-            if (mediaResource.isVideo) {
-                val player = exoPlayer(mediaResource.uri)
-                AndroidView(
-                    factory = { context: Context -> player },
+            Row(
+                modifier = Modifier
+                    .fillMaxSize()
+            ) {
+                Column(
+                    Modifier
+                        .fillMaxWidth(0.3f)
+                        .padding(start = 20.dp)
+                ) {
+                    Text(
+                        text = mediaResource.name,
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.White
+                    )
+                    Spacer(modifier = Modifier.height(12.dp))
+                    Text(
+                        text = formatFileSize(mediaResource.size),
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    Text(
+                        text = "时间：${formatDate(mediaResource.dateModified)}",
+                        fontSize = 14.sp,
+                        color = Color.White
+                    )
+                    if (mediaResource.hasValidPath) {
+                        Text(
+                            text = "位置：${mediaResource.path}",
+                            fontSize = 14.sp,
+                            color = Color.White,
+                            maxLines = 2
+                        )
+                    }
+                }
+
+                Box(
                     modifier = Modifier
-                        .clipToBounds()
                         .fillMaxSize()
-                        .align(Alignment.Center),
-                    update = {}
-                )
-            } else {
-                imageEngine.Image(
-                    modifier = Modifier.align(Alignment.Center),
-                    mediaResource = mediaResource
-                )
+                ) {
+                    if (mediaResource.isVideo) {
+                        val player = exoPlayer(mediaResource.uri)
+                        AndroidView(
+                            factory = { player },
+                            modifier = Modifier
+                                .clipToBounds()
+                                .fillMaxSize()
+                                .align(Alignment.Center),
+                            update = {}
+                        )
+                    } else {
+                        imageEngine.Image(
+                            modifier = Modifier.align(Alignment.Center),
+                            mediaResource = mediaResource
+                        )
+                    }
+                }
             }
-
-            if (showMediaInfo) {
-                MediaInfoOverlay(
-                    modifier = Modifier.align(Alignment.BottomStart),
-                    mediaResource = mediaResource
-                )
-            }
-        }
-    }
-}
-
-@Composable
-private fun MediaInfoOverlay(modifier: Modifier, mediaResource: MediaResource) {
-    Column(
-        modifier = modifier
-            .fillMaxWidth()
-            .background(Color(0x99000000))
-            .padding(horizontal = 16.dp, vertical = 10.dp)
-    ) {
-        Text(
-            text = mediaResource.name,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Medium,
-            color = Color.White
-        )
-        Spacer(modifier = Modifier.height(4.dp))
-        Text(
-            text = formatFileSize(mediaResource.size),
-            fontSize = 12.sp,
-            color = Color(0xCCFFFFFF)
-        )
-        Text(
-            text = formatDate(mediaResource.dateModified),
-            fontSize = 12.sp,
-            color = Color(0xCCFFFFFF)
-        )
-        if (mediaResource.hasValidPath) {
-            Text(
-                text = mediaResource.path,
-                fontSize = 11.sp,
-                color = Color(0x99FFFFFF),
-                maxLines = 2
-            )
         }
     }
 }

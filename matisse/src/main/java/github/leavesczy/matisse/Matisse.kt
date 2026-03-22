@@ -39,7 +39,7 @@ data class Matisse(
     val showDateHeaders: Boolean = false,
     val onlyFolders: Set<String> = emptySet(),
     val enableSelectAll: Boolean = false,
-    val showMediaInfo: Boolean = false
+    val showMediaInfo: Boolean = true
 ) : Parcelable {
 
     init {

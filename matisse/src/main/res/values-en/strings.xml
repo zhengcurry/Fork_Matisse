@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="matisse_default_bucket_name">All</string>
+    <string name="matisse_read_media_permission_denied">Please grant media access permission and try again</string>
+    <string name="matisse_write_external_storage_permission_denied">Please grant storage write permission and try again</string>
+    <string name="matisse_camera_permission_denied">Please grant camera permission and try again</string>
+    <string name="matisse_limit_the_number_of_image">You can select up to %d images</string>
+    <string name="matisse_limit_the_number_of_video">You can select up to %d videos</string>
+    <string name="matisse_limit_the_number_of_media">You can select up to %d images or videos</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">Images and videos cannot be selected at the same time</string>
+    <string name="matisse_no_apps_support_take_picture">No apps available to take pictures</string>
+    <string name="matisse_preview">Preview</string>
+    <string name="matisse_sure">Confirm (%d/%d)</string>
+    <string name="matisse_back">Back</string>
+    <string name="matisse_image">Images</string>
+    <string name="matisse_video">Videos</string>
+    <string name="matisse_choice">Select</string>
+    <string name="matisse_delete">Delete</string>
+    <string name="matisse_cancel">Cancel</string>
+    <string name="matisse_dialog_sure">Confirm</string>
+    <string name="matisse_dialog_title">Delete selected items?</string>
+    <string name="matisse_select_all">Select All</string>
+    <string name="matisse_media_date">Date: %s</string>
+    <string name="matisse_media_path">Path: %s</string>
+    <string name="matisse_bucket_count">(%d)</string>
+</resources>

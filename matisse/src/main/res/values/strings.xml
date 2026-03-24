@@ -20,4 +20,7 @@
     <string name="matisse_dialog_sure">确认</string>
     <string name="matisse_dialog_title">是否删除选中内容?</string>
     <string name="matisse_select_all">全选</string>
+    <string name="matisse_media_date">时间：%s</string>
+    <string name="matisse_media_path">位置：%s</string>
+    <string name="matisse_bucket_count">(%d)</string>
 </resources>

@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="matisse_default_bucket_name">전체</string>
+    <string name="matisse_read_media_permission_denied">미디어 접근 권한을 허용한 후 다시 시도하세요</string>
+    <string name="matisse_write_external_storage_permission_denied">저장소 쓰기 권한을 허용한 후 다시 시도하세요</string>
+    <string name="matisse_camera_permission_denied">카메라 권한을 허용한 후 다시 시도하세요</string>
+    <string name="matisse_limit_the_number_of_image">최대 %d장의 이미지를 선택할 수 있습니다</string>
+    <string name="matisse_limit_the_number_of_video">최대 %d개의 동영상을 선택할 수 있습니다</string>
+    <string name="matisse_limit_the_number_of_media">최대 %d개의 이미지 또는 동영상을 선택할 수 있습니다</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">이미지와 동영상을 동시에 선택할 수 없습니다</string>
+    <string name="matisse_no_apps_support_take_picture">사진을 찍을 수 있는 앱이 없습니다</string>
+    <string name="matisse_preview">미리보기</string>
+    <string name="matisse_sure">확인(%d/%d)</string>
+    <string name="matisse_back">돌아가기</string>
+    <string name="matisse_image">이미지</string>
+    <string name="matisse_video">동영상</string>
+    <string name="matisse_choice">선택</string>
+    <string name="matisse_delete">삭제</string>
+    <string name="matisse_cancel">취소</string>
+    <string name="matisse_dialog_sure">확인</string>
+    <string name="matisse_dialog_title">선택한 항목을 삭제하시겠습니까?</string>
+    <string name="matisse_select_all">전체 선택</string>
+    <string name="matisse_media_date">날짜: %s</string>
+    <string name="matisse_media_path">위치: %s</string>
+    <string name="matisse_bucket_count">(%d)</string>
+</resources>

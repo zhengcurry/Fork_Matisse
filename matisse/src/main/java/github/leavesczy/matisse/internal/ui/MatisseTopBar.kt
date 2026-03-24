@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -194,7 +195,7 @@ private fun BucketDropdownMenu(
                         Text(
                             modifier = Modifier
                                 .padding(start = 6.dp, end = 6.dp),
-                            text = "(${bucket.size})",
+                            text = stringResource(id = R.string.matisse_bucket_count, bucket.size),
                             fontSize = 15.sp,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,

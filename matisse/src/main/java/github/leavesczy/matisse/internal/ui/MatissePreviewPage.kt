@@ -48,6 +48,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -248,13 +249,13 @@ private fun PreviewPage(
                         color = Color.White
                     )
                     Text(
-                        text = "时间：${formatDate(mediaResource.dateModified)}",
+                        text = stringResource(R.string.matisse_media_date, formatDate(mediaResource.dateModified)),
                         fontSize = 14.sp,
                         color = Color.White
                     )
                     if (mediaResource.hasValidPath) {
                         Text(
-                            text = "位置：${mediaResource.path}",
+                            text = stringResource(R.string.matisse_media_path, mediaResource.path),
                             fontSize = 14.sp,
                             color = Color.White,
                             maxLines = 2

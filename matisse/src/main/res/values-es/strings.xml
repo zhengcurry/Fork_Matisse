@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="matisse_default_bucket_name">Todo</string>
+    <string name="matisse_read_media_permission_denied">Por favor, otorgue permiso de acceso a los medios e inténtelo de nuevo</string>
+    <string name="matisse_write_external_storage_permission_denied">Por favor, otorgue permiso de escritura en almacenamiento e inténtelo de nuevo</string>
+    <string name="matisse_camera_permission_denied">Por favor, otorgue permiso de cámara e inténtelo de nuevo</string>
+    <string name="matisse_limit_the_number_of_image">Solo puede seleccionar un máximo de %d imágenes</string>
+    <string name="matisse_limit_the_number_of_video">Solo puede seleccionar un máximo de %d videos</string>
+    <string name="matisse_limit_the_number_of_media">Solo puede seleccionar un máximo de %d imágenes o videos</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">No se pueden seleccionar imágenes y videos al mismo tiempo</string>
+    <string name="matisse_no_apps_support_take_picture">No hay aplicaciones disponibles para tomar fotos</string>
+    <string name="matisse_preview">Vista previa</string>
+    <string name="matisse_sure">Confirmar (%d/%d)</string>
+    <string name="matisse_back">Volver</string>
+    <string name="matisse_image">Imágenes</string>
+    <string name="matisse_video">Videos</string>
+    <string name="matisse_choice">Seleccionar</string>
+    <string name="matisse_delete">Eliminar</string>
+    <string name="matisse_cancel">Cancelar</string>
+    <string name="matisse_dialog_sure">Confirmar</string>
+    <string name="matisse_dialog_title">¿Eliminar los elementos seleccionados?</string>
+    <string name="matisse_select_all">Seleccionar todo</string>
+    <string name="matisse_media_date">Fecha: %s</string>
+    <string name="matisse_media_path">Ruta: %s</string>
+    <string name="matisse_bucket_count">(%d)</string>
+</resources>

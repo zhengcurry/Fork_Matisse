@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="matisse_default_bucket_name">すべて</string>
+    <string name="matisse_read_media_permission_denied">メディアへのアクセス権限を許可して再試行してください</string>
+    <string name="matisse_write_external_storage_permission_denied">ストレージへの書き込み権限を許可して再試行してください</string>
+    <string name="matisse_camera_permission_denied">カメラの権限を許可して再試行してください</string>
+    <string name="matisse_limit_the_number_of_image">最大%d枚の画像を選択できます</string>
+    <string name="matisse_limit_the_number_of_video">最大%d件の動画を選択できます</string>
+    <string name="matisse_limit_the_number_of_media">最大%d件の画像または動画を選択できます</string>
+    <string name="matisse_cannot_select_both_picture_and_video_at_the_same_time">画像と動画を同時に選択することはできません</string>
+    <string name="matisse_no_apps_support_take_picture">写真を撮影できるアプリがありません</string>
+    <string name="matisse_preview">プレビュー</string>
+    <string name="matisse_sure">確認(%d/%d)</string>
+    <string name="matisse_back">戻る</string>
+    <string name="matisse_image">画像</string>
+    <string name="matisse_video">動画</string>
+    <string name="matisse_choice">選択</string>
+    <string name="matisse_delete">削除</string>
+    <string name="matisse_cancel">キャンセル</string>
+    <string name="matisse_dialog_sure">確認</string>
+    <string name="matisse_dialog_title">選択したコンテンツを削除しますか？</string>
+    <string name="matisse_select_all">すべて選択</string>
+    <string name="matisse_media_date">日時：%s</string>
+    <string name="matisse_media_path">場所：%s</string>
+    <string name="matisse_bucket_count">(%d)</string>
+</resources>

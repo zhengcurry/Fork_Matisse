@@ -48,7 +48,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.util.lerp
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontStyle
@@ -98,25 +97,33 @@ internal fun MatissePreviewPage(
     onClickSure: () -> Unit
 ) {
     var showDialog by remember { mutableStateOf(false) }
+    var shouldContinueDelete by remember { mutableStateOf(false) }
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // 处理返回数据
+            // 用户授权成功，设置标志
+            shouldContinueDelete = true
+        } else {
+            // 用户拒绝授权，只刷新列表
             pageViewState.reloadMediaResources()
         }
     }
     var deleteIndex by remember { mutableIntStateOf(pageViewState.initialPage) }
+
+    // 监听授权成功标志，调用继续删除
+    if (shouldContinueDelete) {
+        shouldContinueDelete = false
+        pageViewState.continuePendingDelete(launcher)
+    }
 
     if (showDialog) {
         CustomButtonDialog(
             R.string.matisse_dialog_title,
             onDismissRequest = { showDialog = false },
             onSureClick = {
-                pageViewState.deleteMediaResources(
-                    pageViewState.previewResources[deleteIndex].media.uri,
-                    launcher
-                )
+                val uri = pageViewState.previewResources[deleteIndex].media.uri
+                pageViewState.deleteMediaResources(uri, launcher)
                 showDialog = false
             },
             onCancelClick = { showDialog = false })

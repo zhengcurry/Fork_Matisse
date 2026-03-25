@@ -31,6 +31,7 @@ internal data class MatissePageViewState(
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
     val onClickMediaType: (Int) -> Unit,
     val onClickDelete: (launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
+    val continuePendingDelete: (launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
     val reloadMediaResources: () -> Unit,
     val showDateHeaders: Boolean = false,
     val enableSelectAll: Boolean = false,
@@ -108,6 +109,7 @@ internal data class MatissePreviewPageViewState(
     val onMediaCheckChanged: (MatisseMediaExtend) -> Unit,
     val onDismissRequest: () -> Unit,
     val deleteMediaResources: (uri: Uri, launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
+    val continuePendingDelete: (launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) -> Unit,
     val reloadMediaResources: () -> Unit,
     val showMediaInfo: Boolean = false,
 )

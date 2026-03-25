@@ -54,6 +54,9 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val onlyFolders = matisse.onlyFolders
 
+    // 待删除的文件列表（用于 Android 10 逐个授权删除）
+    private val pendingDeleteUris = mutableListOf<Uri>()
+
     private val defaultBucketId = "&__matisseDefaultBucketId__&"
 
     private val defaultBucket = MatisseMediaBucket(
@@ -80,6 +83,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             onMediaCheckChanged = ::onMediaCheckChanged,
             onClickMediaType = ::onClickMediaType,
             onClickDelete = ::deleteMediaResources,
+            continuePendingDelete = ::continuePendingDelete,
             reloadMediaResources = ::reloadMediaResources,
             showDateHeaders = matisse.showDateHeaders,
             enableSelectAll = matisse.enableSelectAll,
@@ -104,6 +108,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             onMediaCheckChanged = {},
             onDismissRequest = {},
             deleteMediaResources = ::deleteMediaResources,
+            continuePendingDelete = ::continuePendingDelete,
             reloadMediaResources = ::reloadMediaResources,
             showMediaInfo = matisse.showMediaInfo,
         )
@@ -227,7 +232,15 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
         launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>
     ) {
         viewModelScope.launch(context = Dispatchers.Main.immediate) {
-            MediaProvider.deleteMedia(launcher, context, listOf(uri))
+            pendingDeleteUris.clear()
+            pendingDeleteUris.add(uri)
+            val deleted = MediaProvider.deleteMedia(launcher, context, listOf(uri))
+            // 从待删除列表中移除已成功删除的文件
+            pendingDeleteUris.removeAll(deleted.toSet())
+            if (pendingDeleteUris.isEmpty()) {
+                // 所有文件都已删除，刷新列表
+                reloadMediaResources()
+            }
         }
     }
 
@@ -236,10 +249,42 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             val selected = filterSelectedMediaResource().map {
                 it.media.uri
             }
-            val selectedResourcesIsNotEmpty = selected.isNotEmpty()
-            if (selectedResourcesIsNotEmpty) {
-                MediaProvider.deleteMedia(launcher, context, selected)
+            if (selected.isNotEmpty()) {
+                pendingDeleteUris.clear()
+                pendingDeleteUris.addAll(selected)
+                val deleted = MediaProvider.deleteMedia(launcher, context, selected)
+                // 从待删除列表中移除已成功删除的文件
+                pendingDeleteUris.removeAll(deleted.toSet())
+                if (pendingDeleteUris.isEmpty()) {
+                    // 所有文件都已删除，刷新列表
+                    reloadMediaResources()
+                }
             }
+        }
+    }
+
+    /**
+     * 授权成功后继续删除剩余文件（仅用于 Android 10）
+     * 注意：必须立即调用，避免授权失效
+     */
+    fun continuePendingDelete(launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>) {
+        if (pendingDeleteUris.isEmpty()) {
+            // 没有待删除文件，只刷新列表
+            reloadMediaResources()
+            return
+        }
+        viewModelScope.launch(context = Dispatchers.Main.immediate) {
+            // 不等待刷新，立即重新尝试删除剩余文件（利用刚刚获得的授权）
+            val urisToDelete = pendingDeleteUris.toList()
+            val deleted = MediaProvider.deleteMedia(launcher, context, urisToDelete)
+            // 从待删除列表中移除已成功删除的文件
+            pendingDeleteUris.removeAll(deleted.toSet())
+            if (pendingDeleteUris.isEmpty()) {
+                // 所有文件都已删除，刷新列表
+                reloadMediaResources()
+            }
+            // 如果还有待删除的文件，说明又遇到了需要授权的文件
+            // 会再次弹出授权对话框，用户授权后会再次调用此方法
         }
     }
 

@@ -52,6 +52,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
 
     private val mediaFilter = matisse.mediaFilter
 
+    val fullScreen = matisse.fullScreen
+
     private val onlyFolders = matisse.onlyFolders
 
     // 待删除的文件列表（用于 Android 10 逐个授权删除）

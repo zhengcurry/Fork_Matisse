@@ -311,7 +311,7 @@ private fun MediaItem(
             Box(
                 modifier = Modifier
                     .align(alignment = Alignment.BottomStart)
-                    .fillMaxSize(fraction = 0.33f)
+                    .fillMaxSize(fraction = 0.165f)
                     .clickableNoRipple {
                         onClickCheckBox(mediaResource)
                     },

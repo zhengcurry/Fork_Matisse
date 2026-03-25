@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
@@ -33,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import github.leavesczy.matisse.R
 
 /**
@@ -80,12 +82,14 @@ internal fun MediaTypeTopBar(
                     .fillMaxHeight()
                     .size(size = 32.dp),
                 painter = painterResource(id = R.drawable.icon_back),
-                tint = colorResource(id = R.color.matisse_top_bar_icon_color),
+                tint = Color.Unspecified,
                 contentDescription = null
             )
 
             if (!choice) {
                 Button(
+                    modifier = Modifier
+                        .fillMaxHeight(fraction = 0.66f),
                     onClick = {
                         choice = !choice
                         onClickChoice(choice)
@@ -93,10 +97,11 @@ internal fun MediaTypeTopBar(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = colorResource(id = R.color.matisse_type_common_btn_color)
                     ),
-                    shape = RoundedCornerShape(8.dp)
+                    shape = RoundedCornerShape(8.dp),
                 ) {
                     Text(
                         stringResource(R.string.matisse_choice),
+                        fontSize = 14.sp,
                         color = Color.White
                     )
                 }
@@ -106,14 +111,18 @@ internal fun MediaTypeTopBar(
                 Row {
                     if (enableSelectAll) {
                         Button(
+                            modifier = Modifier
+                                .fillMaxHeight(fraction = 0.66f),
                             onClick = onClickSelectAll,
                             colors = ButtonDefaults.buttonColors(
                                 containerColor = colorResource(id = R.color.matisse_type_common_btn_color)
                             ),
-                            shape = RoundedCornerShape(8.dp)
+                            shape = RoundedCornerShape(8.dp),
+                            contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
                         ) {
                             Text(
                                 stringResource(R.string.matisse_select_all),
+                                fontSize = 14.sp,
                                 color = Color.White
                             )
                         }
@@ -121,16 +130,20 @@ internal fun MediaTypeTopBar(
                     }
 
                     Button(
+                        modifier = Modifier
+                            .fillMaxHeight(fraction = 0.66f),
                         onClick = {
                             onClickDelete()
                         },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = colorResource(id = R.color.matisse_type_delete_btn_color)
                         ),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
                     ) {
                         Text(
                             stringResource(R.string.matisse_delete),
+                            fontSize = 14.sp,
                             color = Color.White
                         )
                     }
@@ -138,6 +151,8 @@ internal fun MediaTypeTopBar(
                     Spacer(modifier = Modifier.width(8.dp))
 
                     Button(
+                        modifier = Modifier
+                            .fillMaxHeight(fraction = 0.66f),
                         onClick = {
                             choice = !choice
                             onClickChoice(choice)
@@ -145,10 +160,12 @@ internal fun MediaTypeTopBar(
                         colors = ButtonDefaults.buttonColors(
                             containerColor = colorResource(id = R.color.matisse_type_common_btn_color)
                         ),
-                        shape = RoundedCornerShape(8.dp)
+                        shape = RoundedCornerShape(8.dp),
+                        contentPadding = PaddingValues(horizontal = 16.dp, vertical = 4.dp)
                     ) {
                         Text(
                             stringResource(R.string.matisse_cancel),
+                            fontSize = 14.sp,
                             color = Color.White
                         )
                     }
@@ -158,8 +175,8 @@ internal fun MediaTypeTopBar(
 
         Row(
             modifier = Modifier
-                .fillMaxHeight(fraction = 0.76f)
-                .fillMaxWidth(fraction = 0.3f)
+                .fillMaxHeight(fraction = 0.66f)
+                .fillMaxWidth(fraction = 0.22f)
                 .align(Alignment.Center)
                 .background(color = colorResource(id = R.color.matisse_type_bg_color), RoundedCornerShape(28.dp)),
         ) {
@@ -183,6 +200,7 @@ internal fun MediaTypeTopBar(
                 ) {
                     Text(
                         text = stringResource(label),
+                        fontSize = 14.sp,
                         color = Color.White
                     )
                 }

@@ -62,7 +62,7 @@ internal fun MediaPreviewTopBar(
                     .fillMaxHeight()
                     .size(size = 32.dp),
                 painter = painterResource(id = R.drawable.icon_back),
-                tint = colorResource(id = R.color.matisse_top_bar_icon_color),
+                tint = Color.Unspecified,
                 contentDescription = null
             )
 

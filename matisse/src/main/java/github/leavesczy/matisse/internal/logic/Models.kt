@@ -36,6 +36,8 @@ internal data class MatissePageViewState(
     val showDateHeaders: Boolean = false,
     val enableSelectAll: Boolean = false,
     val onClickSelectAll: () -> Unit = {},
+    val gridAspectRatio: Float = 1f,
+    val gridSpacingDp: Int = 8,
 )
 
 /**

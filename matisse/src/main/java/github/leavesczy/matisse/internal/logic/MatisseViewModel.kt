@@ -90,6 +90,8 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             showDateHeaders = matisse.showDateHeaders,
             enableSelectAll = matisse.enableSelectAll,
             onClickSelectAll = ::onClickSelectAll,
+            gridAspectRatio = matisse.gridAspectRatio,
+            gridSpacingDp = matisse.gridSpacingDp,
         )
     )
         private set

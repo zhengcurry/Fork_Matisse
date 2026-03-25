@@ -25,6 +25,8 @@ import kotlinx.parcelize.Parcelize
  * @param enableSelectAll 是否在多选模式下显示"全选/取消全选"按钮。默认关闭
  * @param showMediaInfo 是否在预览页底部显示文件名、大小、修改日期等详情。默认关闭
  * @param fullScreen 是否全屏显示（隐藏系统导航栏和状态栏）。默认开启
+ * @param gridAspectRatio 网格项宽高比。1f 为正方形（默认），4f/3f 为 4:3
+ * @param gridSpacingDp 网格项之间的间距，单位 dp。默认 8
  */
 @Stable
 @Parcelize
@@ -41,7 +43,9 @@ data class Matisse(
     val onlyFolders: Set<String> = emptySet(),
     val enableSelectAll: Boolean = false,
     val showMediaInfo: Boolean = true,
-    val fullScreen: Boolean = true
+    val fullScreen: Boolean = true,
+    val gridAspectRatio: Float = 1f,
+    val gridSpacingDp: Int = 8
 ) : Parcelable {
 
     init {

@@ -133,14 +133,14 @@ internal fun MatissePage(
                 .padding(paddingValues = innerPadding),
             state = pageViewState.lazyGridState,
             columns = GridCells.Fixed(count = pageViewState.gridColumns),
-            horizontalArrangement = Arrangement.spacedBy(space = 1.dp),
-            verticalArrangement = Arrangement.spacedBy(space = 1.dp),
+            horizontalArrangement = Arrangement.spacedBy(space = pageViewState.gridSpacingDp.dp),
+            verticalArrangement = Arrangement.spacedBy(space = pageViewState.gridSpacingDp.dp),
             contentPadding = PaddingValues(
-                top = 1.dp,
+                top = pageViewState.gridSpacingDp.dp,
                 bottom = if (pageViewState.fastSelect) {
                     16.dp
                 } else {
-                    1.dp
+                    pageViewState.gridSpacingDp.dp
                 }
             )
         ) {
@@ -152,7 +152,8 @@ internal fun MatissePage(
                     CaptureItem(
                         modifier = Modifier
                             .matisseAnimateItem(lazyGridItemScope = this),
-                        onClick = onRequestTakePicture
+                        onClick = onRequestTakePicture,
+                        aspectRatio = pageViewState.gridAspectRatio
                     )
                 }
             }
@@ -189,7 +190,8 @@ internal fun MatissePage(
                                     .matisseAnimateItem(lazyGridItemScope = this),
                                 mediaResource = item.media.media,
                                 imageEngine = pageViewState.imageEngine,
-                                onClickMedia = selectMediaInFastSelectMode
+                                onClickMedia = selectMediaInFastSelectMode,
+                                aspectRatio = pageViewState.gridAspectRatio
                             )
                         } else {
                             MediaItem(
@@ -199,7 +201,8 @@ internal fun MatissePage(
                                 imageEngine = pageViewState.imageEngine,
                                 onClickMedia = pageViewState.onClickMedia,
                                 onClickCheckBox = pageViewState.onMediaCheckChanged,
-                                choice = choice
+                                choice = choice,
+                                aspectRatio = pageViewState.gridAspectRatio
                             )
                         }
                     }
@@ -251,11 +254,12 @@ private fun DateHeaderItem(dateLabel: String) {
 @Composable
 private fun CaptureItem(
     modifier: Modifier,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    aspectRatio: Float = 1f
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(ratio = 1f)
+            .aspectRatio(ratio = aspectRatio)
             .clip(shape = RoundedCornerShape(size = 4.dp))
             .background(color = colorResource(id = R.color.matisse_capture_item_background_color))
             .clickable(onClick = onClick),
@@ -278,11 +282,12 @@ private fun MediaItem(
     imageEngine: ImageEngine,
     onClickMedia: (MatisseMediaExtend) -> Unit,
     onClickCheckBox: (MatisseMediaExtend) -> Unit,
-    choice: Boolean
+    choice: Boolean,
+    aspectRatio: Float = 1f
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(ratio = 1f)
+            .aspectRatio(ratio = aspectRatio)
             .clickable {
                 onClickMedia(mediaResource)
             },
@@ -292,7 +297,8 @@ private fun MediaItem(
         if (mediaResource.media.isVideo) {
             VideoIcon(
                 modifier = Modifier
-                    .fillMaxSize(fraction = 0.24f)
+                    .fillMaxWidth(fraction = 0.24f)
+                    .aspectRatio(1f)
             )
         }
         val scrimColor by animateColorAsState(
@@ -311,7 +317,8 @@ private fun MediaItem(
             Box(
                 modifier = Modifier
                     .align(alignment = Alignment.BottomStart)
-                    .fillMaxSize(fraction = 0.165f)
+                    .fillMaxWidth(fraction = 0.165f)
+                    .aspectRatio(1f)
                     .clickableNoRipple {
                         onClickCheckBox(mediaResource)
                     },
@@ -335,11 +342,12 @@ private fun MediaItemFastSelect(
     modifier: Modifier,
     mediaResource: MediaResource,
     imageEngine: ImageEngine,
-    onClickMedia: (MediaResource) -> Unit
+    onClickMedia: (MediaResource) -> Unit,
+    aspectRatio: Float = 1f
 ) {
     Box(
         modifier = modifier
-            .aspectRatio(ratio = 1f)
+            .aspectRatio(ratio = aspectRatio)
             .clickable {
                 onClickMedia(mediaResource)
             },
@@ -349,7 +357,8 @@ private fun MediaItemFastSelect(
         if (mediaResource.isVideo) {
             VideoIcon(
                 modifier = Modifier
-                    .fillMaxSize(fraction = 0.24f)
+                    .fillMaxWidth(fraction = 0.24f)
+                    .aspectRatio(1f)
             )
         }
     }

@@ -251,7 +251,7 @@ private fun PreviewPage(
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                     Text(
-                        text = formatFileSize(mediaResource.size),
+                        text = stringResource(R.string.matisse_media_size, formatFileSize(mediaResource.size)),
                         fontSize = 14.sp,
                         color = Color.White
                     )

@@ -179,8 +179,9 @@ internal class MatisseActivity : BaseCaptureActivity() {
     private fun setSystemBarUi(previewPageVisible: Boolean) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
         val fullScreen = matisseViewModel.fullScreen
+        val shouldHide = fullScreen || previewPageVisible
         WindowInsetsControllerCompat(window, window.decorView).apply {
-            if (fullScreen || previewPageVisible) {
+            if (shouldHide) {
                 hide(WindowInsetsCompat.Type.statusBars())
                 hide(WindowInsetsCompat.Type.navigationBars())
             } else {
@@ -189,19 +190,28 @@ internal class MatisseActivity : BaseCaptureActivity() {
             }
             systemBarsBehavior =
                 WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
-            val darkIcons = !fullScreen && !previewPageVisible
-            val statusBarDarkIcons = if (darkIcons) {
+            val darkIcons = !shouldHide
+            isAppearanceLightStatusBars = if (darkIcons) {
                 resources.getBoolean(R.bool.matisse_status_bar_dark_icons)
             } else {
                 false
             }
-            val navigationBarDarkIcons = if (darkIcons) {
+            isAppearanceLightNavigationBars = if (darkIcons) {
                 resources.getBoolean(R.bool.matisse_navigation_bar_dark_icons)
             } else {
                 false
             }
-            isAppearanceLightStatusBars = statusBarDarkIcons
-            isAppearanceLightNavigationBars = navigationBarDarkIcons
+        }
+    }
+
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus && matisseViewModel.fullScreen) {
+            WindowInsetsControllerCompat(window, window.decorView).apply {
+                hide(WindowInsetsCompat.Type.systemBars())
+                systemBarsBehavior =
+                    WindowInsetsControllerCompat.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE
+            }
         }
     }
 

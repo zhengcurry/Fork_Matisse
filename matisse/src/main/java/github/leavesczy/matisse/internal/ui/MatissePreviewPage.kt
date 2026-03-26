@@ -102,8 +102,8 @@ internal fun MatissePreviewPage(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // 用户授权成功，设置标志
-            shouldContinueDelete = true
+            // 用户授权成功（createDeleteRequest 已由系统完成删除），直接刷新列表
+            pageViewState.reloadMediaResources()
         } else {
             // 用户拒绝授权，只刷新列表
             pageViewState.reloadMediaResources()
@@ -111,24 +111,14 @@ internal fun MatissePreviewPage(
     }
     var deleteIndex by remember { mutableIntStateOf(pageViewState.initialPage) }
 
-    // 监听授权成功标志，调用继续删除
+    // Android 10 逐个授权的场景：继续删除剩余文件
     if (shouldContinueDelete) {
         shouldContinueDelete = false
         pageViewState.continuePendingDelete(launcher)
     }
 
-    if (showDialog) {
-        CustomButtonDialog(
-            R.string.matisse_dialog_title,
-            onDismissRequest = { showDialog = false },
-            onSureClick = {
-                val uri = pageViewState.previewResources[deleteIndex].media.uri
-                pageViewState.deleteMediaResources(uri, launcher)
-                showDialog = false
-            },
-            onCancelClick = { showDialog = false })
-    }
-    AnimatedVisibility(
+    Box(modifier = Modifier.fillMaxSize()) {
+        AnimatedVisibility(
         visible = pageViewState.visible,
         enter = slideInHorizontally(
             animationSpec = tween(
@@ -197,7 +187,21 @@ internal fun MatissePreviewPage(
                 }
             }
         }
+        // Dialog overlay 在 AnimatedVisibility 之上
+        if (showDialog) {
+            CustomButtonDialog(
+                R.string.matisse_dialog_title,
+                onDismissRequest = { showDialog = false },
+                onSureClick = {
+                    val uri = pageViewState.previewResources[deleteIndex].media.uri
+                    pageViewState.deleteMediaResources(uri, launcher)
+                    showDialog = false
+                },
+                onCancelClick = { showDialog = false }
+            )
+        }
     }
+}
 }
 
 @Composable

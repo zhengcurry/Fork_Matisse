@@ -77,31 +77,22 @@ internal fun MatissePage(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
         if (result.resultCode == Activity.RESULT_OK) {
-            // 用户授权成功，设置标志
-            shouldContinueDelete = true
+            // 用户授权成功（createDeleteRequest 已由系统完成删除），直接刷新列表
+            pageViewState.reloadMediaResources()
         } else {
             // 用户拒绝授权，只刷新列表
             pageViewState.reloadMediaResources()
         }
     }
 
-    // 监听授权成功标志，调用继续删除
+    // Android 10 逐个授权的场景：继续删除剩余文件
     if (shouldContinueDelete) {
         shouldContinueDelete = false
         pageViewState.continuePendingDelete(launcher)
     }
 
-    if (showDialog) {
-        CustomButtonDialog(
-            R.string.matisse_dialog_title,
-            onDismissRequest = { showDialog = false },
-            onSureClick = {
-                pageViewState.onClickDelete(launcher)
-                showDialog = false
-            },
-            onCancelClick = { showDialog = false })
-    }
-    Scaffold(
+    Box(modifier = Modifier.fillMaxSize()) {
+        Scaffold(
         modifier = Modifier
             .fillMaxSize(),
         containerColor = Color.Black,
@@ -209,7 +200,20 @@ internal fun MatissePage(
                 }
             }
         }
+        // Dialog overlay 在 Scaffold 之上（同一 Window，不会触发导航栏）
+        if (showDialog) {
+            CustomButtonDialog(
+                R.string.matisse_dialog_title,
+                onDismissRequest = { showDialog = false },
+                onSureClick = {
+                    pageViewState.onClickDelete(launcher)
+                    showDialog = false
+                },
+                onCancelClick = { showDialog = false }
+            )
+        }
     }
+}
 }
 
 private fun buildGridItems(

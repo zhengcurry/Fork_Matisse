@@ -4,7 +4,6 @@ import android.app.RecoverableSecurityException
 import android.content.ContentUris
 import android.content.ContentValues
 import android.content.Context
-import android.content.IntentSender
 import android.database.Cursor
 import android.media.MediaScannerConnection
 import android.net.Uri
@@ -111,7 +110,11 @@ internal object MediaProvider {
     }
 
     /**
-     * 删除媒体文件并返回已成功删除的 URI 列表
+     * 删除媒体文件并返回已成功删除的 URI 列表。
+     *
+     * 策略：先尝试直接 contentResolver.delete()（系统签名/平台签名应用可直接成功），
+     * 仅当抛出 SecurityException 时才 fallback 到系统授权对话框。
+     * 这样无论应用装在 /system/ 还是 /data/，只要有平台签名就能无感删除。
      */
     suspend fun deleteMedia(
         launcher: ManagedActivityResultLauncher<IntentSenderRequest, ActivityResult>,
@@ -120,71 +123,68 @@ internal object MediaProvider {
     ): List<Uri> {
         Log.d("curry", "deleteMedia: attempting to delete ${uris.size} files")
         val successfullyDeleted = mutableListOf<Uri>()
+        val needAuthUris = mutableListOf<Uri>() // 需要系统授权的 URI
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
-            // Android 11+ (API 30+): 使用 MediaStore.createDeleteRequest 批量删除
-            try {
-                val deleteRequest = MediaStore.createDeleteRequest(context.contentResolver, uris)
-                launcher.launch(
-                    IntentSenderRequest.Builder(deleteRequest).build()
-                )
-            } catch (e: IntentSender.SendIntentException) {
-                e.printStackTrace()
+        // 第一步：逐个尝试直接删除
+        withContext(Dispatchers.IO) {
+            val paths = uris.mapNotNull { queryPath(context, it) }
+            for (uri in uris) {
+                try {
+                    val deletedRows = context.contentResolver.delete(uri, null, null)
+                    Log.d("curry", "Direct delete: $uri, rows=$deletedRows")
+                    successfullyDeleted.add(uri)
+                } catch (securityException: SecurityException) {
+                    // 没有权限直接删除，需要系统授权
+                    Log.d("curry", "SecurityException for $uri, need auth")
+                    needAuthUris.add(uri)
+                } catch (throwable: Throwable) {
+                    Log.w("curry", "Delete failed for $uri: ${throwable.message}")
+                    successfullyDeleted.add(uri) // 文件可能已不存在，标记为已处理
+                }
             }
-        } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            // Android 10 (API 29): 需要捕获 RecoverableSecurityException
-            // 注意：不能在 IO 线程中调用 launcher.launch()，必须在主线程
-            withContext(context = Dispatchers.IO) {
-                for ((index, uri) in uris.withIndex()) {
-                    try {
-                        val deletedRows = context.contentResolver.delete(uri, null, null)
-                        if (deletedRows > 0) {
-                            Log.d("curry", "Successfully deleted: $uri")
-                            successfullyDeleted.add(uri)
-                        } else {
-                            // 文件已经被删除或不存在，也算成功（避免重复处理）
-                            Log.w("curry", "File already deleted or not found: $uri")
-                            successfullyDeleted.add(uri)
-                        }
-                    } catch (securityException: SecurityException) {
-                        // 尝试转换为 RecoverableSecurityException
-                        val recoverableSecurityException =
-                            securityException as? RecoverableSecurityException
+            // 触发媒体扫描更新
+            if (paths.isNotEmpty()) {
+                MediaScannerConnection.scanFile(context, paths.toTypedArray(), null, null)
+            }
+        }
 
-                        if (recoverableSecurityException != null) {
-                            // 可以恢复的安全异常，请求用户授权
-                            withContext(Dispatchers.Main) {
-                                val intentSender = recoverableSecurityException.userAction.actionIntent.intentSender
-                                try {
-                                    launcher.launch(
-                                        IntentSenderRequest.Builder(intentSender).build()
-                                    )
-                                    Log.d("curry", "Requesting permission to delete: $uri (${index + 1}/${uris.size})")
-                                } catch (e: Exception) {
-                                    Log.e("curry", "Failed to launch permission request", e)
-                                    e.printStackTrace()
-                                }
-                            }
-                            // 请求授权后立即返回，等待用户确认
-                            // 用户授权成功后，调用方会通过 continuePendingDelete() 继续删除剩余文件
-                            return@withContext
-                        } else {
-                            // 不可恢复的安全异常（比如文件已被其他进程删除），跳过该文件
-                            Log.w("curry", "Non-recoverable security exception for $uri: ${securityException.message}")
-                            successfullyDeleted.add(uri) // 标记为已处理，避免重复尝试
+        // 第二步：直接删除全部成功，无需授权
+        if (needAuthUris.isEmpty()) {
+            return successfullyDeleted
+        }
+
+        // 第三步：有文件需要授权，使用系统对话框
+        withContext(Dispatchers.Main) {
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.R) {
+                // Android 11+: createDeleteRequest 批量授权
+                try {
+                    val deleteRequest = MediaStore.createDeleteRequest(
+                        context.contentResolver, needAuthUris
+                    )
+                    launcher.launch(IntentSenderRequest.Builder(deleteRequest).build())
+                } catch (e: Exception) {
+                    Log.e("curry", "createDeleteRequest failed", e)
+                }
+            } else if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                // Android 10: RecoverableSecurityException 逐个授权
+                val firstUri = needAuthUris.first()
+                try {
+                    context.contentResolver.delete(firstUri, null, null)
+                } catch (securityException: SecurityException) {
+                    val recoverable = securityException as? RecoverableSecurityException
+                    if (recoverable != null) {
+                        try {
+                            launcher.launch(
+                                IntentSenderRequest.Builder(
+                                    recoverable.userAction.actionIntent.intentSender
+                                ).build()
+                            )
+                        } catch (e: Exception) {
+                            Log.e("curry", "Failed to launch permission request", e)
                         }
-                    } catch (throwable: Throwable) {
-                        // 忽略其他错误（例如文件已被删除、磁盘问题等）
-                        Log.w("curry", "Failed to delete $uri: ${throwable.message}")
-                        successfullyDeleted.add(uri) // 标记为已处理，避免重复尝试
                     }
                 }
-                Log.d("curry", "Batch delete completed: ${successfullyDeleted.size}/${uris.size} files processed")
             }
-        } else {
-            // Android 9 及以下 (API 28-): 可以直接删除
-            deleteMoreMedia(context, uris)
-            successfullyDeleted.addAll(uris)
         }
 
         return successfullyDeleted

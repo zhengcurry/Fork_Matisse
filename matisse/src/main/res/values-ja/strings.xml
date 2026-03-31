@@ -20,6 +20,7 @@
     <string name="matisse_dialog_sure">確認</string>
     <string name="matisse_dialog_title">選択したコンテンツを削除しますか？</string>
     <string name="matisse_select_all">すべて選択</string>
+    <string name="matisse_no_file_selected">ファイルが選択されていません</string>
     <string name="matisse_media_date">日時：%s</string>
     <string name="matisse_media_path">場所：%s</string>
     <string name="matisse_bucket_count">(%d)</string>

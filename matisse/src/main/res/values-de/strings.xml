@@ -20,6 +20,7 @@
     <string name="matisse_dialog_sure">Bestätigen</string>
     <string name="matisse_dialog_title">Ausgewählte Inhalte löschen?</string>
     <string name="matisse_select_all">Alle auswählen</string>
+    <string name="matisse_no_file_selected">Keine Dateien ausgewählt</string>
     <string name="matisse_media_date">Datum: %s</string>
     <string name="matisse_media_path">Pfad: %s</string>
     <string name="matisse_bucket_count">(%d)</string>

@@ -41,11 +41,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import android.widget.Toast
 import github.leavesczy.matisse.ImageEngine
 import github.leavesczy.matisse.MediaResource
 import github.leavesczy.matisse.R
@@ -73,6 +75,7 @@ internal fun MatissePage(
     var choice by remember { mutableStateOf(false) }
     var showDialog by remember { mutableStateOf(false) }
     var shouldContinueDelete by remember { mutableStateOf(false) }
+    val context = LocalContext.current
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartIntentSenderForResult()
     ) { result ->
@@ -101,7 +104,16 @@ internal fun MatissePage(
                 modifier = Modifier,
                 onClickMediaType = pageViewState.onClickMediaType,
                 onClickChoice = { it -> choice = it },
-                onClickDelete = { showDialog = true },
+                onClickDelete = {
+                    val hasSelected = pageViewState.selectedBucket.resources.any {
+                        it.selectState.value.isSelected
+                    }
+                    if (hasSelected) {
+                        showDialog = true
+                    } else {
+                        Toast.makeText(context, context.getString(R.string.matisse_no_file_selected), Toast.LENGTH_SHORT).show()
+                    }
+                },
                 enableSelectAll = pageViewState.enableSelectAll,
                 onClickSelectAll = pageViewState.onClickSelectAll
             )

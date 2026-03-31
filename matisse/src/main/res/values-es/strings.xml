@@ -20,6 +20,7 @@
     <string name="matisse_dialog_sure">Confirmar</string>
     <string name="matisse_dialog_title">¿Eliminar los elementos seleccionados?</string>
     <string name="matisse_select_all">Seleccionar todo</string>
+    <string name="matisse_no_file_selected">No se seleccionaron archivos</string>
     <string name="matisse_media_date">Fecha: %s</string>
     <string name="matisse_media_path">Ruta: %s</string>
     <string name="matisse_bucket_count">(%d)</string>

@@ -90,6 +90,7 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             showDateHeaders = matisse.showDateHeaders,
             enableSelectAll = matisse.enableSelectAll,
             onClickSelectAll = ::onClickSelectAll,
+            onCancelChoice = ::clearSelection,
             gridAspectRatio = matisse.gridAspectRatio,
             gridSpacingDp = matisse.gridSpacingDp,
         )
@@ -386,6 +387,11 @@ internal class MatisseViewModel(application: Application, matisse: Matisse) :
             }
         }
         updatePreviewPageIfNeed()
+        bottomBarViewState = buildBottomBarViewState()
+    }
+
+    private fun clearSelection() {
+        resetAllMediaSelectState(state = unselectedEnabledMediaSelectState)
         bottomBarViewState = buildBottomBarViewState()
     }
 

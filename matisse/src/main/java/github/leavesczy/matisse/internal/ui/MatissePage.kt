@@ -103,7 +103,12 @@ internal fun MatissePage(
             MediaTypeTopBar(
                 modifier = Modifier,
                 onClickMediaType = pageViewState.onClickMediaType,
-                onClickChoice = { it -> choice = it },
+                onClickChoice = { it ->
+                    if (!it) {
+                        pageViewState.onCancelChoice()
+                    }
+                    choice = it
+                },
                 onClickDelete = {
                     val hasSelected = pageViewState.selectedBucket.resources.any {
                         it.selectState.value.isSelected

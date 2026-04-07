@@ -45,7 +45,8 @@ internal class MatisseActivity : BaseCaptureActivity() {
                         intent,
                         Matisse::class.java.name,
                         Matisse::class.java
-                    )!!
+                    )!!,
+                    activityContext = this@MatisseActivity
                 ) as T
             }
         }

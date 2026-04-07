@@ -1,5 +1,6 @@
 package github.leavesczy.matisse.internal.logic
 
+import android.annotation.SuppressLint
 import android.app.Application
 import android.content.Context
 import android.net.Uri
@@ -30,11 +31,17 @@ import kotlin.math.min
  * @Date: 2022/6/1 19:19
  * @Desc:
  */
-internal class MatisseViewModel(application: Application, matisse: Matisse) :
+internal class MatisseViewModel(application: Application, matisse: Matisse, activityContext: Context) :
     AndroidViewModel(application) {
 
-    private val context: Context
-        get() = getApplication()
+    /**
+     * 使用 Activity 的 locale 配置创建一个新的 Context，用于正确的多语言字符串解析。
+     * 避免直接持有 Activity 引用导致内存泄漏。
+     */
+    @SuppressLint("StaticFieldLeak")
+    private val context: Context = application.createConfigurationContext(
+        activityContext.resources.configuration
+    )
 
     val maxSelectable = matisse.maxSelectable
 

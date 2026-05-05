@@ -28,7 +28,7 @@ dependencyResolutionManagement {
 
 ```kotlin
 dependencies {
-    implementation("com.github.zhengcurry:Fork_Matisse:2.0.1")
+    implementation("com.github.zhengcurry:Fork_Matisse:3.1.2")
 }
 ```
 

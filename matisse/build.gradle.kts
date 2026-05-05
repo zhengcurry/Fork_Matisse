@@ -32,13 +32,21 @@ dependencies {
     implementation(libs.androidx.constraintlayout)
 }
 
-val matisseVersion = "3.1.1"
+val matisseGroupId = "com.github.zhengcurry"
+val matisseArtifactId = "Fork_Matisse"
+val matisseVersion = "3.1.2"
+
+group = matisseGroupId
+version = matisseVersion
 
 // 配置 JitPack 发布
 // 简化配置，避免生成多个重复的 artifact
 publishing {
     publications {
         create<MavenPublication>("release") {
+            groupId = matisseGroupId
+            artifactId = matisseArtifactId
+            version = matisseVersion
             afterEvaluate {
                 from(components["release"])
             }
